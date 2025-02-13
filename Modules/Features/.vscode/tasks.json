@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "swift",
+			"args": [
+				"build",
+				"-Xswiftc",
+				"-diagnostic-style=swift"
+			],
+			"env": {},
+			"cwd": "/Users/jordan/Files/Development/Show Day/Modules/Features",
+			"disableTaskQueue": true,
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "silent",
+				"revealProblems": "onProblem",
+				"showReuseMessage": false,
+				"clear": true,
+			},
+			"problemMatcher": [],
+			"label": "swift: Build All",
+			"detail": "swift build -Xswiftc -diagnostic-style=swift"
+		}
+	]
+}

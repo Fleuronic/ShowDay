@@ -1,0 +1,158 @@
+import AppKit
+
+extension NSMenuItem {
+	@MainActor
+	convenience init(
+		title: String,
+		detail: String? = nil,
+		subtitle: String? = nil,
+		icon: NSImage? = nil,
+		iconColor: NSColor? = nil,
+		enabled: Bool = true,
+		submenuItems: [NSMenuItem] = [],
+		width: CGFloat = 325,
+		laysOutSubmenu: Bool = true,
+	) {
+		if detail != nil || subtitle != nil {
+			self.init(
+				title: title,
+				detail: detail,
+				subtitle: subtitle,
+				icon: icon,
+				iconColor: iconColor,
+				width: width,
+				reduceKerning: laysOutSubmenu
+			)
+		} else {
+			self.init(
+				title: title,
+				font: nil,
+				enabled: enabled
+			)
+		}
+
+		isEnabled = enabled
+		if !submenuItems.isEmpty {
+			let submenu = NSMenu()
+			submenu.items = submenuItems
+			self.submenu = submenu
+		}
+	}
+
+	@MainActor
+	convenience init(
+		title: String,
+		font: NSFont?,
+		enabled: Bool = true
+	) {
+		self.init()
+
+		if enabled {
+			if let font {
+				let attributes: [NSAttributedString.Key: NSFont] = [.font: font]
+				attributedTitle = .init(string: title, attributes: attributes)
+			} else {
+				self.title = title
+				self.isEnabled = enabled
+			}
+		} else if let font {
+			let label = NSTextField(labelWithString: title)
+			label.font = font
+			label.sizeToFit()
+
+			let containerView = NSView()
+			containerView.frame = label.bounds
+			containerView.addSubview(label)
+			
+			label.frame.origin.x = 12
+			label.frame.origin.y = 3
+			containerView.frame.size.height += 6
+			view = containerView
+		}
+	}
+}
+
+// MARK: -
+private extension NSMenuItem {
+	convenience init(
+		title: String,
+		detail: String?,
+		subtitle: String?,
+		icon: NSImage?,
+		iconColor: NSColor?,
+		width: CGFloat,
+		reduceKerning: Bool
+	) {
+		self.init()
+
+		let titleFont = NSFont.systemFont(ofSize: 13)
+		let string = NSMutableAttributedString(
+			string: title, 
+			attributes: [
+				.font: titleFont, 
+				.foregroundColor: NSColor.labelColor
+			]
+		)
+
+		if let icon {
+			let aspect = icon.size.width / icon.size.height
+			let iconHeight = titleFont.pointSize + 3// + (iconName.contains("horn") ? -1 : 3)
+			let iconWidth = iconHeight * aspect
+
+			let attachment = NSTextAttachment()
+			attachment.image = icon
+			attachment.bounds = CGRect(
+				x: 0, 
+				y: (titleFont.capHeight - iconHeight).rounded() / 2, 
+				width: iconWidth, 
+				height: iconHeight
+			)
+
+			let iconAttributes = iconColor.map { [NSAttributedString.Key.foregroundColor: $0] } ?? [:]
+			let iconString = NSMutableAttributedString(attachment: attachment, attributes: iconAttributes)
+			let spacingAttributes = [NSAttributedString.Key.kern: /*(index == nil ? 22 : */18/*)*/ - iconWidth]
+			let spacingString = NSAttributedString(string: " ", attributes: spacingAttributes)
+			iconString.append(spacingString)
+			string.insert(iconString, at: 0)
+		}
+
+		if let subtitle {
+			let subtitleFont = NSFont.systemFont(ofSize: 12)
+			let subtitleString = NSAttributedString(string: subtitle, attributes: [.font: subtitleFont])
+			let subtitleWidth = subtitleString.size().width
+			let spacing: CGFloat = subtitle.contains("/") ? 36 : 64
+			let spacingString = NSAttributedString(string: " ", attributes: [.kern: spacing - subtitleWidth])
+			string.insert(spacingString, at: 0)
+			string.insert(subtitleString, at: 0)
+		}
+
+		guard let detail else {
+			attributedTitle = string
+			return
+		}
+		
+		let titleWidth = string.size().width
+		let detailString = NSMutableAttributedString(
+			string: detail, 
+			attributes: [
+				.font: titleFont, 
+				.foregroundColor: NSColor.disabledControlTextColor
+			]
+		)
+		
+		let detailWidth = detailString.size().width
+		let spacingWidth = width - titleWidth - detailWidth
+		let spacingString = NSAttributedString(string: " ", attributes: [.kern: spacingWidth])
+
+		if reduceKerning {
+			let lastIndex = detail.index(before: detail.endIndex)
+			let afterLast = detail.index(after: lastIndex)
+			let range = NSRange(lastIndex..<afterLast, in: detail)
+			detailString.addAttribute(.kern, value: -CGFloat.infinity, range: range)
+		}
+
+		string.append(spacingString)
+		string.append(detailString)
+		attributedTitle = string
+	}
+}

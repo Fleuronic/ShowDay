@@ -1,0 +1,45 @@
+{
+  "configurations" : [
+    {
+      "id" : "01E2C778-08A1-420F-9C71-16F9E68B623B",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Modules\/Features",
+        "identifier" : "TextToSpeechTests",
+        "name" : "TextToSpeechTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Modules\/Presentation",
+        "identifier" : "EnvironmentTests",
+        "name" : "EnvironmentTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Modules\/Presentation",
+        "identifier" : "MetricsTests",
+        "name" : "MetricsTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Modules\/Features",
+        "identifier" : "RootTests",
+        "name" : "RootTests"
+      }
+    }
+  ],
+  "version" : 1
+}

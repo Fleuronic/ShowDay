@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "07D15D3D-97B1-4F0E-8A2D-12779BF01CBB",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "TextToSpeechTests",
+        "name" : "TextToSpeechTests"
+      }
+    }
+  ],
+  "version" : 1
+}
