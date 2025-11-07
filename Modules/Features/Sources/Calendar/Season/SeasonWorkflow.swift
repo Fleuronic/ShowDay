@@ -98,6 +98,8 @@ extension Season.Workflow.Action: WorkflowAction {
 				return .location(location)
 			} else if let venue = item as? Venue {
 				return .venue(venue)
+			} else if let url = item as? URL {
+				return .groupURL(url)
 			}
 		}
 

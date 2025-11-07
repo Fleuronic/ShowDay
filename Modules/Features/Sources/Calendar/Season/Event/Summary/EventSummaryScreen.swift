@@ -26,12 +26,12 @@ extension Event.Summary.Screen {
 	init(
 		day: Day,
 		event: Event,
-		viewItem: ((Any) -> Void)? = nil
+		viewItem: @escaping (Any) -> Void
 	) {
 		title = event.showName!
 		subtitle = event.location.description
-		viewDetails = viewItem.map { viewItem in { viewItem(event) } }
-		viewLocation = viewItem.map { viewItem in { viewItem(event.venue ?? event.location) } }
+		viewDetails = { viewItem(event) }
+		viewLocation = { viewItem(event.venue ?? event.location) }
 		placementSummaryScreen = .init(placements: event.topPlacements)
 		eventResultsScreen = .init(event: event, viewItem: viewItem)
 		eventDetailsScreen = .init(day: day, event: event, viewItem: viewItem)

@@ -9,15 +9,20 @@ extension Slot {
 		let subtitle: String?
 		let groupIconName: String?
 		let isGroupActive: Bool?
+		let viewGroup: () -> Void
 	}
 }
 
 // MARK: -
 extension Slot.Screen {
-	init(slot: Slot) {
+	init(
+		slot: Slot,
+		viewItem: @escaping (Any) -> Void
+	) {
 		title = slot.name
 		detail = slot.detail
 		subtitle = slot.timeString
+		viewGroup = { slot.url.map(viewItem) }
 
 		if let active = slot.isGroupActive {
 			if slot.groupType == .ensemble {

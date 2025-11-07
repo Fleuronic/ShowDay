@@ -5,10 +5,14 @@ import struct DrumCorps.Slot
 extension Slot {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		init(screen: Screen) {}
+		private let viewGroup: () -> Void
+
+		init(screen: Screen) {
+			viewGroup = screen.viewGroup
+		}
 
 		@objc private func itemSelected() {
-		
+			viewGroup()
 		}
 	}
 }

@@ -28,12 +28,15 @@ extension Event.List.Screen {
 		private let day: Day
 	}
 
-	init(days: [Day]) {
+	init(
+		days: [Day],
+		viewItem: @escaping (Any) -> Void
+	) {
 		let list = Event.List(days: days)
 		let content = list.content
 		eventCountText = "\(content.count) Events"
-			
-		let rows = content.map(Row.init)
+
+		let rows = content.map { ($0, $1, viewItem) }.map(Row.init)
 		sections = Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted()
 		// TODO: More sorting
 	}
@@ -50,7 +53,8 @@ extension Event.List.Screen.Section: Comparable {
 extension Event.List.Screen.Row {
 	init(
 		day: Day,
-		event: Event
+		event: Event,
+		viewItem: @escaping (Any) -> Void
 	) {
 		self.day = day
 		
@@ -58,7 +62,11 @@ extension Event.List.Screen.Row {
 		detail = event.showDisplayName.map { _ in event.location.description }
 		subtitle = day.dateString
 		sectionName = day.month
-		summaryScreen = .init(day: day, event: event)
+		summaryScreen = .init(
+			day: day, 
+			event: event,
+			viewItem: viewItem
+		)
 	}
 }
 
