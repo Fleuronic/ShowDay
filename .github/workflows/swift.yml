@@ -16,10 +16,6 @@ defaults:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-        swift: ["6.2"]
     steps:
     - name: Build
       run: swift build -v
