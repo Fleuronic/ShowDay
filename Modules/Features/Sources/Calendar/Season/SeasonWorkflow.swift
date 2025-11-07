@@ -94,10 +94,12 @@ extension Season.Workflow.Action: WorkflowAction {
 				return .details(event)
 			} else if let (event, _) = item as? (Event, [Placement]) {
 				return .scores(event)
-			}else if let location = item as? Location {
-				return .location(location)
+			} else if let circuit = item as? Circuit {
+				return .circuit(circuit)
 			} else if let venue = item as? Venue {
 				return .venue(venue)
+			} else if let location = item as? Location {
+				return .location(location)
 			} else if let url = item as? URL {
 				return .groupURL(url)
 			}
