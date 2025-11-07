@@ -20,7 +20,16 @@ extension Slot.View: @MainActor MenuItemDisplaying {
 			title: screen.title,
 			detail: screen.detail,
 			subtitle: screen.subtitle,
-			width: 400,
+			icon: screen.groupIconName.flatMap { name in
+				.init(
+					systemSymbolName: name,
+					accessibilityDescription: nil
+				)
+			},
+			iconColor: .group(isActive: screen.isGroupActive),
+			iconSpacing: 22,
+			iconAdjustment: -1,
+			width: 452,
 			laysOutSubmenu: false
 		)
 
@@ -34,4 +43,15 @@ extension Slot.View: @MainActor MenuItemDisplaying {
 // MARK: -
 extension Slot.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Slot.View
+}
+
+// MARK: -
+private extension NSColor {
+	static func group(isActive: Bool?) -> NSColor? {
+		switch isActive {
+		case true: .init(calibratedWhite: 0.2, alpha: 1)
+		case false: .disabledControlTextColor
+		default: nil
+		}
+	}
 }
