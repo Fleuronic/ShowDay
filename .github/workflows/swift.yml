@@ -11,11 +11,11 @@ on:
 
 defaults:
   run:
-    working-directory: ./Modules/Features
+    working-directory: Modules/Features
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [macos-latest]
