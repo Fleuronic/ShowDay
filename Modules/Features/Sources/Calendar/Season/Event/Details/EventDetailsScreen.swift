@@ -20,9 +20,14 @@ extension Event.Details.Screen {
 	init(
 		day: Day,
 		event: Event,
-		viewItem: ((Any) -> Void)?
+		viewItem: @escaping (Any) -> Void
 	) {
 		infoScreen = .init(event: event, viewItem: viewItem)
-		scheduleScreen = .init(day: day, slots: event.slots, circuit: event.circuit)
+		scheduleScreen = .init(
+			day: day, 
+			slots: event.slots, 
+			circuit: event.circuit,
+			viewItem: viewItem
+		)
 	}
 }

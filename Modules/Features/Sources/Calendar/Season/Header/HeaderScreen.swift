@@ -20,11 +20,12 @@ extension Header {
 extension Header.Screen {
 	init(
 		days: [Day],
-		year: Int
+		year: Int,
+		viewItem: @escaping (Any) -> Void
 	) {
 		headingScreen = Heading.Screen(year: year)
 		spanScreen = Span.Screen(days: days)
-		eventListScreen = Event.List.Screen(days: days)
+		eventListScreen = Event.List.Screen(days: days, viewItem: viewItem)
 		circuitSelectorScreen = Circuit.Selector.Screen()
 	}
 }

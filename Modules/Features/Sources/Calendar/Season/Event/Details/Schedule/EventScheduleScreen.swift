@@ -26,7 +26,8 @@ extension Event.Schedule.Screen {
 	init(
 		day: Day,
 		slots: [Slot],
-		circuit: Circuit?
+		circuit: Circuit?,
+		viewItem: @escaping (Any) -> Void
 	) {
 		title = day.name
 		
@@ -38,6 +39,6 @@ extension Event.Schedule.Screen {
 		footer = circuit.map { "Event held as part of the \(day.year) \($0) season." }
 
 		let slots = alphabetical ? slots.sorted(using: KeyPathComparator(\.name)) : slots
-		slotScreens = slots.map(Slot.Screen.init)
+		slotScreens = slots.map { ($0, viewItem) }.map(Slot.Screen.init)
 	}
 }

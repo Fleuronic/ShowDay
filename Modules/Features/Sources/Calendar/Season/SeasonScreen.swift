@@ -21,7 +21,7 @@ public extension Season {
 extension Season.Screen {
 	var headerScreen: Header.Screen? {
 		loadedDays
-			.map { ($0, year) }
+			.map { ($0, year, viewItem) }
 			.map(Header.Screen.init)
 	}
 
