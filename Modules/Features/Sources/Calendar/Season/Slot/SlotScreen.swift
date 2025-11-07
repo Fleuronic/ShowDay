@@ -1,4 +1,4 @@
-
+// Copyright © Fleuronic LLC. All rights reserved.
 
 import struct DrumCorps.Slot
 
@@ -7,7 +7,8 @@ extension Slot {
 		let title: String
 		let detail: String?
 		let subtitle: String?
-		// let iconName: String
+		let groupIconName: String?
+		let isGroupActive: Bool?
 	}
 }
 
@@ -17,5 +18,18 @@ extension Slot.Screen {
 		title = slot.name
 		detail = slot.detail
 		subtitle = slot.timeString
+
+		if let active = slot.isGroupActive {
+			if slot.groupType == .ensemble {
+				groupIconName = "horn.blast"
+				isGroupActive = nil
+			} else {
+				groupIconName = "horn\(active ? ".blast" : "").fill"
+				isGroupActive = active
+			}
+		} else {
+			groupIconName = nil
+			isGroupActive = nil
+		}
 	}
 }

@@ -8,6 +8,8 @@ extension NSMenuItem {
 		subtitle: String? = nil,
 		icon: NSImage? = nil,
 		iconColor: NSColor? = nil,
+		iconSpacing: CGFloat = 18,
+		iconAdjustment: CGFloat = 3,
 		enabled: Bool = true,
 		submenuItems: [NSMenuItem] = [],
 		width: CGFloat = 325,
@@ -20,6 +22,8 @@ extension NSMenuItem {
 				subtitle: subtitle,
 				icon: icon,
 				iconColor: iconColor,
+				iconSpacing: iconSpacing,
+				iconAdjustment: iconAdjustment,
 				width: width,
 				reduceKerning: laysOutSubmenu
 			)
@@ -80,6 +84,8 @@ private extension NSMenuItem {
 		subtitle: String?,
 		icon: NSImage?,
 		iconColor: NSColor?,
+		iconSpacing: CGFloat,
+		iconAdjustment: CGFloat,
 		width: CGFloat,
 		reduceKerning: Bool
 	) {
@@ -96,7 +102,7 @@ private extension NSMenuItem {
 
 		if let icon {
 			let aspect = icon.size.width / icon.size.height
-			let iconHeight = titleFont.pointSize + 3// + (iconName.contains("horn") ? -1 : 3)
+			let iconHeight = titleFont.pointSize + iconAdjustment
 			let iconWidth = iconHeight * aspect
 
 			let attachment = NSTextAttachment()
@@ -110,7 +116,7 @@ private extension NSMenuItem {
 
 			let iconAttributes = iconColor.map { [NSAttributedString.Key.foregroundColor: $0] } ?? [:]
 			let iconString = NSMutableAttributedString(attachment: attachment, attributes: iconAttributes)
-			let spacingAttributes = [NSAttributedString.Key.kern: /*(index == nil ? 22 : */18/*)*/ - iconWidth]
+			let spacingAttributes = [NSAttributedString.Key.kern: iconSpacing - iconWidth]
 			let spacingString = NSAttributedString(string: " ", attributes: spacingAttributes)
 			iconString.append(spacingString)
 			string.insert(iconString, at: 0)
