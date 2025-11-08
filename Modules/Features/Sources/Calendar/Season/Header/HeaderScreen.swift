@@ -9,7 +9,6 @@ enum Header {}
 // MARK: -
 extension Header {
 	struct Screen {
-		let headingScreen: Heading.Screen
 		let spanScreen: Span.Screen
 		let eventListScreen: Event.List.Screen
 		let circuitSelectorScreen: Circuit.Selector.Screen
@@ -23,7 +22,6 @@ extension Header.Screen {
 		year: Int,
 		viewItem: @escaping (Any) -> Void
 	) {
-		headingScreen = Heading.Screen(year: year)
 		spanScreen = Span.Screen(days: days)
 		eventListScreen = Event.List.Screen(days: days, viewItem: viewItem)
 		circuitSelectorScreen = Circuit.Selector.Screen()

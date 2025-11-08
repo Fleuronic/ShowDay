@@ -3,7 +3,7 @@
 import AppKit
 import ErgoAppKit
 
-extension Heading {
+extension Season.Navigation {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
 		init(screen: Screen) {}
@@ -11,7 +11,7 @@ extension Heading {
 }
 
 // MARK: -
-extension Heading.View: @MainActor MenuItemDisplaying {
+extension Season.Navigation.View: @MainActor MenuItemDisplaying {
 	// MARK: MenuItemDisplaying
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		[
@@ -25,6 +25,6 @@ extension Heading.View: @MainActor MenuItemDisplaying {
 }
 
 // MARK: -
-extension Heading.Screen: @MainActor MenuBackingScreen {
-	public typealias View = Heading.View
+extension Season.Navigation.Screen: @MainActor MenuBackingScreen {
+	public typealias View = Season.Navigation.View
 }

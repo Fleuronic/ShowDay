@@ -1,16 +1,18 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
-enum Heading {}
+extension Season {
+	enum Navigation {}
+}
 
 // MARK: -
-extension Heading {
+extension Season.Navigation {
 	struct Screen {
 		let text: String
 	}
 }
 
 // MARK: -
-extension Heading.Screen {
+extension Season.Navigation.Screen {
 	init(year: Int) {
 		text = "\(year) Drum Corps Season"
 	}
