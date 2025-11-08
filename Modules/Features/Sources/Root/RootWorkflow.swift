@@ -50,7 +50,7 @@ private extension Root.Workflow {
 
 	var seasonWorkflow: Season<LoadService>.Workflow {
 		.init(
-			year: 2025,
+			year: 2023,
 			loadService: loadService
 		)
 	}
