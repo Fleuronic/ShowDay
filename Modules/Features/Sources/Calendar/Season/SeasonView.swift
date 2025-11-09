@@ -3,7 +3,7 @@
 public import AppKit
 public import ErgoAppKit
 
-public extension Season {
+public extension Calendar.Season {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
 		private let loadDays: () -> Void
@@ -23,7 +23,7 @@ public extension Season {
 }
 
 // MARK: -
-extension Season.View: @MainActor MenuItemDisplaying {
+extension Calendar.Season.View: @MainActor MenuItemDisplaying {
 	// MARK: MenuItemDisplaying
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		let headerScreen = screen.headerScreen
@@ -41,6 +41,6 @@ extension Season.View: @MainActor MenuItemDisplaying {
 }
 
 // MARK: -
-extension Season.Screen: @MainActor MenuBackingScreen {
-	public typealias View = Season.View
+extension Calendar.Season.Screen: @MainActor MenuBackingScreen {
+	public typealias View = Calendar.Season.View
 }

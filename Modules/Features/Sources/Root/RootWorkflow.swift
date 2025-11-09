@@ -3,12 +3,9 @@
 public import Workflow
 public import WorkflowMenuUI
 public import WorkflowContainers
-public import Foundation
-public import struct DrumCorps.Location
-public import struct DrumCorps.Venue
+public import enum Calendar.Calendar
 
 private import MemberwiseInit
-private import struct Calendar.Season
 
 public extension Root {
 	@_UncheckedMemberwiseInit(.public)
@@ -19,10 +16,10 @@ public extension Root {
 
 // MARK: -
 extension Root.Workflow: Workflow {
+	public typealias CalendarOutput = Calendar<LoadService>.Workflow.Output
+	
 	public enum Output {
-		case url(URL)
-		case location(Location)
-		case venue(Venue)
+		case calendar(CalendarOutput)
 	}
 
 	public func render(
@@ -31,9 +28,9 @@ extension Root.Workflow: Workflow {
 	) -> Menu.Screen<AnyScreen> {
 		.init(
 			sections: [
-				seasonWorkflow
+				calendarWorkflow
 					.mapRendering(section: .calendar)
-					.mapOutput(Action.handleSeasonOutput)
+					.mapOutput(Action.handleCalendarOutput)
 					.rendered(in: context)
 			]
 		)
@@ -42,17 +39,12 @@ extension Root.Workflow: Workflow {
 
 // MARK: -
 private extension Root.Workflow {
-	typealias SeasonOutput = Season<LoadService>.Workflow.Output
-
 	enum Action {
-		case handleSeasonOutput(SeasonOutput)
+		case handleCalendarOutput(CalendarOutput)
 	}
 
-	var seasonWorkflow: Season<LoadService>.Workflow {
-		.init(
-			year: 2023,
-			loadService: loadService
-		)
+	var calendarWorkflow: Calendar<LoadService>.Workflow {
+		.init(loadService: loadService)
 	}
 }
 
@@ -63,21 +55,8 @@ extension Root.Workflow.Action: WorkflowAction {
 	// MARK: WorkflowAction
 	public func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
-		case let .handleSeasonOutput(output):
-			switch output {
-			case let .details(event):
-				.url(event.detailsURL!)
-			case let .scores(event):
-				.url(event.scoresURL!)
-			case let .circuit(circuit):
-				.url(circuit.url!)
-			case let .location(location):
-				.location(location)
-			case let .venue(venue):
-				.venue(venue)
-			case let .groupURL(url):
-				.url(url)
-			}
+		case let .handleCalendarOutput(output):
+			.calendar(output)
 		}
 	}
 }

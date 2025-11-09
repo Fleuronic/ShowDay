@@ -3,7 +3,7 @@
 import AppKit
 import ErgoAppKit
 
-extension Season.Navigation {
+extension Calendar.Season.Navigation {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
 		init(screen: Screen) {}
@@ -11,7 +11,7 @@ extension Season.Navigation {
 }
 
 // MARK: -
-extension Season.Navigation.View: @MainActor MenuItemDisplaying {
+extension Calendar.Season.Navigation.View: @MainActor MenuItemDisplaying {
 	// MARK: MenuItemDisplaying
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		[
@@ -25,6 +25,6 @@ extension Season.Navigation.View: @MainActor MenuItemDisplaying {
 }
 
 // MARK: -
-extension Season.Navigation.Screen: @MainActor MenuBackingScreen {
-	public typealias View = Season.Navigation.View
+extension Calendar.Season.Navigation.Screen: @MainActor MenuBackingScreen {
+	public typealias View = Calendar.Season.Navigation.View
 }

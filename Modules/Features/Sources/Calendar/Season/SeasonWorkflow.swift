@@ -12,7 +12,7 @@ public import struct DrumCorpsService.DayLoadWorker
 
 private import MemberwiseInit
 
-public extension Season {
+public extension Calendar.Season {
 	@_UncheckedMemberwiseInit(.public)
 	struct Workflow {
 		private let year: Int
@@ -21,10 +21,10 @@ public extension Season {
 }
 
 // MARK: -
-extension Season.Workflow: Workflow {
+extension Calendar.Season.Workflow: Workflow {
 	@dynamicMemberLookup
 	public struct State {
-		var season: Season
+		var season: Calendar.Season
 	}
 
 	public enum Output {
@@ -48,7 +48,7 @@ extension Season.Workflow: Workflow {
 	public func render(
 		state: State,
 		context: RenderContext<Self>
-	) -> Season.Screen {
+	) -> Calendar.Season.Screen {
 		dayLoadWorker(for: state)?.running(in: context)
 
 		let sink = context.makeSink(of: Action.self)
@@ -63,7 +63,7 @@ extension Season.Workflow: Workflow {
 }
 
 // MARK: -
-private extension Season.Workflow {
+private extension Calendar.Season.Workflow {
 	typealias Worker = AnyWorkflow<Void, WorkerAction>
 
 	enum Action {
@@ -82,8 +82,8 @@ private extension Season.Workflow {
 }
 
 // MARK: -
-extension Season.Workflow.Action: WorkflowAction {
-	typealias WorkflowType = Season.Workflow
+extension Calendar.Season.Workflow.Action: WorkflowAction {
+	typealias WorkflowType = Calendar.Season.Workflow
 
 	func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
@@ -110,16 +110,16 @@ extension Season.Workflow.Action: WorkflowAction {
 }
 
 // MARK: -
-private extension Season.Workflow.State {
-	subscript<T>(dynamicMember keyPath: WritableKeyPath<Season, T>) -> T {
+private extension Calendar.Season.Workflow.State {
+	subscript<T>(dynamicMember keyPath: WritableKeyPath<Calendar.Season, T>) -> T {
 		get { season[keyPath: keyPath] }
 		set { season[keyPath: keyPath] = newValue }
 	}
 }
 
 // MARK: -
-extension Season.Workflow.WorkerAction: WorkflowAction {
-	typealias WorkflowType = Season.Workflow
+extension Calendar.Season.Workflow.WorkerAction: WorkflowAction {
+	typealias WorkflowType = Calendar.Season.Workflow
 
 	func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {

@@ -1,18 +1,18 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
-extension Season {
+extension Calendar.Season {
 	enum Navigation {}
 }
 
 // MARK: -
-extension Season.Navigation {
+extension Calendar.Season.Navigation {
 	struct Screen {
 		let text: String
 	}
 }
 
 // MARK: -
-extension Season.Navigation.Screen {
+extension Calendar.Season.Navigation.Screen {
 	init(year: Int) {
 		text = "\(year) Drum Corps Season"
 	}
