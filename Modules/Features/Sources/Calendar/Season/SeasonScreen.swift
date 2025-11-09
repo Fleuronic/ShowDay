@@ -7,7 +7,7 @@ import struct DrumCorps.Circuit
 import struct DrumCorps.Location
 import struct DrumCorps.Venue
 
-public extension Season {
+public extension Calendar.Season {
 	struct Screen {
 		let year: Int
 		let days: LoadService.DayLoadResult
@@ -18,7 +18,7 @@ public extension Season {
 }
 
 // MARK: -
-extension Season.Screen {
+extension Calendar.Season.Screen {
 	var headerScreen: Header.Screen? {
 		loadedDays
 			.map { ($0, year, viewItem) }
@@ -33,7 +33,7 @@ extension Season.Screen {
 }
 
 // MARK: -
-private extension Season.Screen {
+private extension Calendar.Season.Screen {
 	var loadedDays: [Day]? {
 		switch days {
 		case .success(let days) where !days.isEmpty: days

@@ -43,12 +43,15 @@ extension RootApp.Delegate: @MainActor AppDelegate {
 			)
 		).mapOutput { output in
 			switch output {
-			case let .url(url):
-				self.open(url)
-			case let .location(location):
-				self.show(location)
-			case let .venue(venue):
-				self.show(venue)
+			case let .calendar(calendarOutput):
+				switch calendarOutput {
+				case let .url(url):
+					self.open(url)
+				case let .location(location):
+					self.show(location)
+				case let .venue(venue):
+					self.show(venue)
+				}
 			}
 		}
 	}
