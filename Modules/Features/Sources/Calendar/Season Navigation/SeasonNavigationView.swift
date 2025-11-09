@@ -3,6 +3,8 @@
 import AppKit
 import ErgoAppKit
 
+private import Elements
+
 extension Calendar.Season.Navigation {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {

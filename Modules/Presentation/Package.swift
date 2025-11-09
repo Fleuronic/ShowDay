@@ -5,7 +5,7 @@ let package = Package(
 	name: "Presentation",
 	platforms: [
 		.iOS(.v17),
-		.macOS(.v14)
+		.macOS(.v15)
 	],
 	products: [
 		.library(
@@ -13,6 +13,7 @@ let package = Package(
 			targets: [
 				"Metrics",
 				"Assets",
+				"Elements",
 				"Environment"
 			]
 		)
@@ -31,6 +32,10 @@ let package = Package(
 			dependencies: ["Metrics"]
 		),
 		.target(name: "Assets"),
+		.target(
+			name: "Elements",
+			dependencies: ["Assets"]
+		),
 		.target(
 			name: "Environment",
 			dependencies: [.product(name: "ViewEnvironment", package: "workflow-swift")]

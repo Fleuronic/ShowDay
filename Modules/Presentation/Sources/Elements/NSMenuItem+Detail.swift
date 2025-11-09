@@ -1,6 +1,6 @@
-import AppKit
+public import AppKit
 
-extension NSMenuItem {
+public extension NSMenuItem {
 	@MainActor
 	convenience init(
 		title: String,
