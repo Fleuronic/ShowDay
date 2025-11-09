@@ -17,18 +17,26 @@ public extension Root {
 // MARK: -
 extension Root.Workflow: Workflow {
 	public typealias CalendarOutput = Calendar<LoadService>.Workflow.Output
+
+	public struct State {
+		let year: Int
+	}
 	
 	public enum Output {
 		case calendar(CalendarOutput)
 	}
 
+	public func makeInitialState() -> State {
+		.init(year: 2023)
+	}
+
 	public func render(
-		state: Void,
+		state: State,
 		context: RenderContext<Self>
 	) -> Menu.Screen<AnyScreen> {
 		.init(
 			sections: [
-				calendarWorkflow
+				calendarWorkflow(for: state.year)
 					.mapRendering(section: .calendar)
 					.mapOutput(Action.handleCalendarOutput)
 					.rendered(in: context)
@@ -43,8 +51,11 @@ private extension Root.Workflow {
 		case handleCalendarOutput(CalendarOutput)
 	}
 
-	var calendarWorkflow: Calendar<LoadService>.Workflow {
-		.init(loadService: loadService)
+	func calendarWorkflow(for year: Int) -> Calendar<LoadService>.Workflow {
+		.init(
+			year: year,
+			loadService: loadService
+		)
 	}
 }
 

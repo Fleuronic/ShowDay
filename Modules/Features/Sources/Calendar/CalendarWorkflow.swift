@@ -12,6 +12,7 @@ private import MemberwiseInit
 public extension Calendar {
 	@_UncheckedMemberwiseInit(.public)
 	struct Workflow {
+		private let year: Int
 		private let loadService: LoadService
 	}
 }
@@ -30,6 +31,10 @@ extension Calendar.Workflow: Workflow {
 	) -> Menu.Screen<AnyScreen> {
 		.init(
 			sections: [
+				seasonNavigationWorkflow
+					.mapRendering(section: .seasonNavigation)
+					.mapOutput(Action.handleSeasonNavigationOutput)
+					.rendered(in: context),
 				seasonWorkflow
 					.mapRendering(section: .season)
 					.mapOutput(Action.handleSeasonOutput)
@@ -41,17 +46,23 @@ extension Calendar.Workflow: Workflow {
 
 // MARK: -
 private extension Calendar.Workflow {
-	typealias SeasonOutput = Calendar<LoadService>.Season.Workflow.Output
+	typealias SeasonWorkflow = Calendar<LoadService>.Season.Workflow
+	typealias SeasonNavigationWorkflow = Calendar<LoadService>.Season.Navigation.Workflow
 
 	enum Action {
-		case handleSeasonOutput(SeasonOutput)
+		case handleSeasonOutput(SeasonWorkflow.Output)
+		case handleSeasonNavigationOutput(SeasonNavigationWorkflow.Output)
 	}
 
-	var seasonWorkflow: Calendar<LoadService>.Season.Workflow {
+	var seasonWorkflow: SeasonWorkflow {
 		.init(
-			year: 2023,
+			year: year,
 			loadService: loadService
 		)
+	}
+
+	var seasonNavigationWorkflow: SeasonNavigationWorkflow {
+		.init(year: year)
 	}
 }
 
@@ -77,6 +88,8 @@ extension Calendar.Workflow.Action: WorkflowAction {
 			case let .groupURL(url):
 				.url(url)
 			}
+		case .handleSeasonNavigationOutput:
+			nil
 		}
 	}
 }
@@ -84,7 +97,7 @@ extension Calendar.Workflow.Action: WorkflowAction {
 // MARK: -
 private enum Section {
 	case season
-	// case seasonNavigation
+	case seasonNavigation
 	// case seasonSelector
 }
 
