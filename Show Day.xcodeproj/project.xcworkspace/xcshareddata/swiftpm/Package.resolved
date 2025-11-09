@@ -1,5 +1,5 @@
 {
-  "originHash" : "7d8710bac59c2f6b2bea4981ca2ad92a19e8872ed2ba3fbcf4e5e21516ebf6c2",
+  "originHash" : "ff0baba395e8ead30315cd477f3d7c803a064b31d4323b30e83ef6c8f49d4da6",
   "pins" : [
     {
       "identity" : "caesura",
@@ -241,7 +241,7 @@
       "location" : "https://github.com/jordanekay/workflow-swift",
       "state" : {
         "branch" : "main",
-        "revision" : "a3c2f127e6fbb21b9f018957ef2f7c78754030a4"
+        "revision" : "34a92f7a84fbc1db904f44c2e45e8ecf53bf7599"
       }
     },
     {
