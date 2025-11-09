@@ -84,8 +84,8 @@ extension Calendar.Workflow.Action: WorkflowAction {
 // MARK: -
 private enum Section {
 	case season
-	case seasonNavigation
-	case seasonSelector
+	// case seasonNavigation
+	// case seasonSelector
 }
 
 // MARK: -
