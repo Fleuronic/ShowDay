@@ -19,25 +19,38 @@ public extension Calendar {
 
 // MARK: -
 extension Calendar.Workflow: Workflow {
+	public struct State {
+		var year: Int
+	}
+
 	public enum Output {
 		case url(URL)
 		case location(Location)
 		case venue(Venue)
 	}
 
+	public func makeInitialState() -> State {
+		.init(year: year)
+	}
+
 	public func render(
-		state: Void,
+		state: State,
 		context: RenderContext<Self>
 	) -> Menu.Screen<AnyScreen> {
-		.init(
+		let year = state.year
+		return .init(
 			sections: [
-				seasonNavigationWorkflow
+				seasonNavigationWorkflow(for: year)
 					.mapRendering(section: .seasonNavigation)
 					.mapOutput(Action.handleSeasonNavigationOutput)
 					.rendered(in: context),
-				seasonWorkflow
+				seasonWorkflow(for: year)
 					.mapRendering(section: .season)
 					.mapOutput(Action.handleSeasonOutput)
+					.rendered(in: context),
+				seasonSelectorWorkflow(for: year)
+					.mapRendering(section: .seasonSelector)
+					.mapOutput(Action.update)
 					.rendered(in: context)
 			]
 		)
@@ -48,20 +61,26 @@ extension Calendar.Workflow: Workflow {
 private extension Calendar.Workflow {
 	typealias SeasonWorkflow = Calendar<LoadService>.Season.Workflow
 	typealias SeasonNavigationWorkflow = Calendar<LoadService>.Season.Navigation.Workflow
+	typealias SeasonSelectorWorkflow = Calendar<LoadService>.Season.Selector.Workflow
 
 	enum Action {
+		case update(year: Int)
 		case handleSeasonOutput(SeasonWorkflow.Output)
 		case handleSeasonNavigationOutput(SeasonNavigationWorkflow.Output)
 	}
 
-	var seasonWorkflow: SeasonWorkflow {
+	func seasonWorkflow(for year: Int) -> SeasonWorkflow {
 		.init(
 			year: year,
 			loadService: loadService
 		)
 	}
 
-	var seasonNavigationWorkflow: SeasonNavigationWorkflow {
+	func seasonNavigationWorkflow(for year: Int) -> SeasonNavigationWorkflow {
+		.init(year: year)
+	}
+
+	func seasonSelectorWorkflow(for year: Int) -> SeasonSelectorWorkflow {
 		.init(year: year)
 	}
 }
@@ -73,8 +92,10 @@ extension Calendar.Workflow.Action: WorkflowAction {
 	// MARK: WorkflowAction
 	public func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
+		case let .update(year):
+			state.year = year
 		case let .handleSeasonOutput(output):
-			switch output {
+			return switch output {
 			case let .details(event):
 				.url(event.detailsURL!)
 			case let .scores(event):
@@ -89,8 +110,10 @@ extension Calendar.Workflow.Action: WorkflowAction {
 				.url(url)
 			}
 		case .handleSeasonNavigationOutput:
-			nil
+			break
 		}
+
+		return nil
 	}
 }
 
@@ -98,7 +121,7 @@ extension Calendar.Workflow.Action: WorkflowAction {
 private enum Section {
 	case season
 	case seasonNavigation
-	// case seasonSelector
+	case seasonSelector
 }
 
 // MARK: -
