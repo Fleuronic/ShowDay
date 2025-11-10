@@ -42,10 +42,10 @@ extension Event.Schedule.View: @MainActor MenuItemDisplaying {
 // MARK: -
 private extension Event.Schedule.View {
 	func footerItems(for footer: String?) -> [NSMenuItem] {
-		footer.map { text in
+		let separatorItem = NSMenuItem.separator()
+		return footer.map { text in
 			[
-				.separator(),
-				NSMenuItem(
+				separatorItem, .init(
 					title: text,
 					font: .systemFont(ofSize: 12)
 				)

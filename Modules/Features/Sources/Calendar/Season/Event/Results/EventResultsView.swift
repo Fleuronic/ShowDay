@@ -29,14 +29,14 @@ extension Event.Results.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		let item: NSMenuItem
 		if screen.placementScreens.isEmpty {
-			item = NSMenuItem(title: screen.title)
+			item = .init(title: screen.title)
 			item.isEnabled = false
 		} else {
 			let placementItems = zip(screen.placementScreens, placementViews).flatMap(items)
 			let detailItem = detailItem(for: screen.detail)
 			let footerItems = footerItems(for: screen.circuitText)
 			
-			item = NSMenuItem(
+			item = .init(
 				title: screen.title,
 				submenuItems: [detailItem] + placementItems + footerItems
 			)
@@ -61,14 +61,14 @@ private extension Event.Results.View {
 	}
 
 	func footerItems(for circuitText: String?) -> [NSMenuItem] {
-		circuitText.map { text in
+		let separatorItem = NSMenuItem.separator()
+		return circuitText.map { text in
 			[
-				.separator(),
-				NSMenuItem(
+				separatorItem, .init(
 					title: text,
 					font: .systemFont(ofSize: 12)
 				)
-			]			
+			]
 		} ?? []
 	}
 
