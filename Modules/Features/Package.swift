@@ -16,6 +16,10 @@ let package = Package(
 			name: "Calendar",
 			targets: ["Calendar"]
 		),
+		.library(
+			name: "Settings",
+			targets: ["Settings"]
+		),
 	],
 	dependencies: [
 		.package(name: "Models", path: "../Models"),
@@ -31,6 +35,7 @@ let package = Package(
 			name: "Root",
 			dependencies: [
 				"Calendar",
+				"Settings",
 				"SafeSFSymbols"
 			]
 		),
@@ -61,7 +66,14 @@ let package = Package(
 				"ViewInspector",
 				.product(name: "WorkflowTesting", package: "workflow-swift")
 			]
-		)
+		),
+		.target(
+			name: "Settings",
+			dependencies: [
+				"Presentation",
+				"ErgoAppKit"
+			]
+		),
 	],
 	swiftLanguageModes: [.v6]
 )

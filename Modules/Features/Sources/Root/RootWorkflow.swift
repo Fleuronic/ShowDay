@@ -6,6 +6,7 @@ public import WorkflowContainers
 public import enum Calendar.Calendar
 
 private import MemberwiseInit
+private import enum Settings.Settings
 
 public extension Root {
 	@_UncheckedMemberwiseInit(.public)
@@ -16,14 +17,15 @@ public extension Root {
 
 // MARK: -
 extension Root.Workflow: Workflow {
-	public typealias CalendarOutput = Calendar<LoadService>.Workflow.Output
+	public typealias CalendarWorkflow = Calendar<LoadService>.Workflow
 
 	public struct State {
 		let year: Int
 	}
 	
 	public enum Output {
-		case calendar(CalendarOutput)
+		case calendarOutput(CalendarWorkflow.Output)
+		case termination
 	}
 
 	public func makeInitialState() -> State {
@@ -39,6 +41,10 @@ extension Root.Workflow: Workflow {
 				calendarWorkflow(for: state.year)
 					.mapRendering(section: .calendar)
 					.mapOutput(Action.handleCalendarOutput)
+					.rendered(in: context),
+				settingsWorkflow
+					.mapRendering(section: .settings)
+					.mapOutput(Action.handleSettingsOutput)
 					.rendered(in: context)
 			]
 		)
@@ -48,10 +54,15 @@ extension Root.Workflow: Workflow {
 // MARK: -
 private extension Root.Workflow {
 	enum Action {
-		case handleCalendarOutput(CalendarOutput)
+		case handleCalendarOutput(CalendarWorkflow.Output)
+		case handleSettingsOutput(Settings.Workflow.Output)
 	}
 
-	func calendarWorkflow(for year: Int) -> Calendar<LoadService>.Workflow {
+	var settingsWorkflow: Settings.Workflow {
+		.init()
+	}
+
+	func calendarWorkflow(for year: Int) -> CalendarWorkflow {
 		.init(
 			year: year,
 			loadService: loadService
@@ -67,7 +78,9 @@ extension Root.Workflow.Action: WorkflowAction {
 	public func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
 		case let .handleCalendarOutput(output):
-			.calendar(output)
+			.calendarOutput(output)
+		case .handleSettingsOutput(.quit):
+			.termination
 		}
 	}
 }
@@ -75,6 +88,7 @@ extension Root.Workflow.Action: WorkflowAction {
 // MARK: -
 private enum Section {
 	case calendar
+	case settings
 }
 
 // MARK: -
