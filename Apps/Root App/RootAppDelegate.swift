@@ -43,8 +43,8 @@ extension RootApp.Delegate: @MainActor AppDelegate {
 			)
 		).mapOutput { output in
 			switch output {
-			case let .calendar(calendarOutput):
-				switch calendarOutput {
+			case let .calendarOutput(output):
+				switch output {
 				case let .url(url):
 					self.open(url)
 				case let .location(location):
@@ -52,6 +52,8 @@ extension RootApp.Delegate: @MainActor AppDelegate {
 				case let .venue(venue):
 					self.show(venue)
 				}
+			case .termination:
+				self.terminate()
 			}
 		}
 	}
@@ -77,5 +79,9 @@ private extension RootApp.Delegate {
 		Task {
 			await open(venue.mapItem)
 		}
+	}
+
+	func terminate() {
+		NSApp.terminate(nil)
 	}
 }
