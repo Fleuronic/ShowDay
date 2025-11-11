@@ -3,8 +3,6 @@
 public import AppKit
 public import ErgoAppKit
 
-private import Elements
-
 public extension Settings {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
