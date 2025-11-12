@@ -29,7 +29,7 @@ extension Calendar.Season.Selector.Workflow: Workflow {
 		return .init(
 			year: year,
 			currentYear: currentYear,
-			selectCurrentSeason: { sink.send(.selectSeason(year: currentYear)) }
+			selectSeason: { sink.send(.selectSeason(year: $0)) }
 		)
 	}
 }
