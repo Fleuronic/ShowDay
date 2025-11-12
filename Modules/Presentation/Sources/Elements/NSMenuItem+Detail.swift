@@ -14,6 +14,8 @@ public extension NSMenuItem {
 		submenuItems: [NSMenuItem] = [],
 		width: CGFloat = 325,
 		laysOutSubmenu: Bool = true,
+		action: Selector? = nil,
+		target: AnyObject? = nil
 	) {
 		if detail != nil || subtitle != nil {
 			self.init(
@@ -41,13 +43,20 @@ public extension NSMenuItem {
 			submenu.items = submenuItems
 			self.submenu = submenu
 		}
+		
+		if let action, let target {
+			self.action = action
+			self.target = target
+		}
 	}
 
 	@MainActor
 	convenience init(
 		title: String,
 		font: NSFont?,
-		enabled: Bool = true
+		enabled: Bool = true,
+		action: Selector? = nil,
+		target: AnyObject? = nil
 	) {
 		self.init()
 
@@ -72,6 +81,11 @@ public extension NSMenuItem {
 			label.frame.origin.y = 3
 			containerView.frame.size.height += 6
 			view = containerView
+		}
+
+		if let action, let target {
+			self.action = action
+			self.target = target
 		}
 	}
 }
