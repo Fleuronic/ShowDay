@@ -1,4 +1,4 @@
-// // Copyright © Fleuronic LLC. All rights reserved.
+// Copyright © Fleuronic LLC. All rights reserved.
 
 private import MemberwiseInit
 
