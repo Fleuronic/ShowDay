@@ -11,6 +11,7 @@ extension Calendar.Season {
 	}
 }
 
+// MARK: -
 extension Calendar.Season.Selector {
 	init(
 		year: Year,

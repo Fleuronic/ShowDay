@@ -42,7 +42,7 @@ extension Year: Strideable {
 extension Year: CustomStringConvertible {
 	// MARK: CustomStringConvertible
 	public var description: String {
-		"\(value)"
+		value.description
 	}
 }
 
