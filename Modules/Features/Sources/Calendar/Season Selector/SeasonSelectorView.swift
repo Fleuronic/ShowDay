@@ -4,11 +4,12 @@ import AppKit
 import ErgoAppKit
 
 private import Elements
+private import struct DrumCorps.Year
 
 extension Calendar.Season.Selector {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let selectSeason: (Int) -> Void
+		private let selectSeason: (Year) -> Void
 		private let selectCurrentSeason: () -> Void
 
 		init(screen: Screen) {
@@ -17,7 +18,7 @@ extension Calendar.Season.Selector {
 		}
 		
 		@objc private func seasonItemSelected(item: NSMenuItem) {
-			let year = item.representedObject as! Int
+			let year = item.representedObject as! Year
 			selectSeason(year)
 		}
 
@@ -42,7 +43,7 @@ extension Calendar.Season.Selector.View: @MainActor MenuItemDisplaying {
 
 // MARK: -
 private extension Calendar.Season.Selector.View {
-	func item(for row: Screen.Section.Row, year: Int) -> NSMenuItem {
+	func item(for row: Screen.Section.Row, year: Year) -> NSMenuItem {
 		let item = NSMenuItem(title: row.title)
 		switch row.content {
 		case .year(year):
@@ -61,7 +62,7 @@ private extension Calendar.Season.Selector.View {
 		return item
 	}
 
-	func items(for sections: [Screen.Section], year: Int) -> [NSMenuItem] {
+	func items(for sections: [Screen.Section], year: Year) -> [NSMenuItem] {
 		sections.flatMap { section in
 			let items = section.rows.map { item(for: $0, year: year) }
 			let separatorItem = NSMenuItem.separator()

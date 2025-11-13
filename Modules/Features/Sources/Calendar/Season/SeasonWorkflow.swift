@@ -2,6 +2,7 @@
 
 public import Foundation
 public import Workflow
+public import struct DrumCorps.Year
 public import struct DrumCorps.Event
 public import struct DrumCorps.Placement
 public import struct DrumCorps.Circuit
@@ -15,7 +16,7 @@ private import MemberwiseInit
 public extension Calendar.Season {
 	@_UncheckedMemberwiseInit(.public)
 	struct Workflow {
-		private let year: Int
+		private let year: Year
 		private let loadService: LoadService
 	}
 }

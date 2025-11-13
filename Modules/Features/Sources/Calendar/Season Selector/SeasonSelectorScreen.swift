@@ -1,12 +1,15 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
+import struct DrumCorps.Year
+import struct DrumCorps.Decade
+
 extension Calendar.Season.Selector {
 	struct Screen {
 		let title = "Other Seasons"
-		let year: Int
+		let year: Year
 		let sections: [Section]
 		let currentSeasonText: String?
-		let selectSeason: (Int) -> Void
+		let selectSeason: (Year) -> Void
 		let selectCurrentSeason: () -> Void
 	}
 }
@@ -18,9 +21,9 @@ extension Calendar.Season.Selector.Screen {
 	}
 	
 	init(
-		year: Int,
-		currentYear: Int,
-		selectSeason: @escaping (Int) -> Void
+		year: Year,
+		currentYear: Year,
+		selectSeason: @escaping (Year) -> Void
 	) {
 		let selector = Calendar.Season.Selector(
 			year: year,
@@ -43,18 +46,18 @@ extension Calendar.Season.Selector.Screen {
 
 // MARK: -
 private extension Calendar.Season.Selector.Screen {
-	static func section(for decades: [(Int, [Int])]) -> Section {
+	static func section(for decades: [Decade]) -> Section {
 		.init(
-			rows: decades.reversed().map { decade, years in
+			rows: decades.reversed().map { decade in
 				.init(
-					title: "\(decade)s",
-					content: .rows(rows(for: years))
+					title: decade.name,
+					content: .rows(rows(for: decade.years))
 				)
 			}
 		)
 	}
 
-	static func rows(for years: [Int]) -> [Section.Row] {
+	static func rows(for years: [Year]) -> [Section.Row] {
 		years.reversed().map { year in
 			.init(
 				title: "\(year) Season", 
@@ -75,7 +78,7 @@ extension Calendar.Season.Selector.Screen.Section {
 // MARK: -
 extension Calendar.Season.Selector.Screen.Section.Row {
 	enum Content {
-		case year(Int)
+		case year(Year)
 		case rows([Calendar.Season.Selector.Screen.Section.Row])
 	}
 }

@@ -1,15 +1,16 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
 import Workflow
+import struct DrumCorps.Year
 
 private import MemberwiseInit
 
 extension Calendar.Season.Selector {
 	struct Workflow {
-		private let year: Int
-		private let currentYear: Int
+		private let year: Year
+		private let currentYear: Year
 
-		init(year: Int) {
+		init(year: Year) {
 			self.year = year
 			
 			currentYear = 2025
@@ -19,7 +20,7 @@ extension Calendar.Season.Selector {
 
 // MARK: -
 extension Calendar.Season.Selector.Workflow: Workflow {
-	typealias Output = Int
+	typealias Output = Year
 
 	func render(
 		state: Void,
@@ -37,7 +38,7 @@ extension Calendar.Season.Selector.Workflow: Workflow {
 // MARK: -
 private extension Calendar.Season.Selector.Workflow {
 	enum Action {
-		case selectSeason(year: Int)
+		case selectSeason(year: Year)
 	}
 }
 

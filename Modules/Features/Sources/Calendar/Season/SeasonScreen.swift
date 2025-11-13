@@ -3,13 +3,14 @@
 import Foundation
 import struct DrumCorps.Event
 import struct DrumCorps.Day
+import struct DrumCorps.Year
 import struct DrumCorps.Circuit
 import struct DrumCorps.Location
 import struct DrumCorps.Venue
 
 public extension Calendar.Season {
 	struct Screen {
-		let year: Int
+		let year: Year
 		let days: LoadService.DayLoadResult
 		let isLoadingDays: Bool
 		let loadDays: () -> Void
