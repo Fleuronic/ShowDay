@@ -4,6 +4,7 @@ public import Workflow
 public import WorkflowMenuUI
 public import WorkflowContainers
 public import Foundation
+public import struct DrumCorps.Year
 public import struct DrumCorps.Location
 public import struct DrumCorps.Venue
 
@@ -12,7 +13,7 @@ private import MemberwiseInit
 public extension Calendar {
 	@_UncheckedMemberwiseInit(.public)
 	struct Workflow {
-		private let year: Int
+		private let year: Year
 		private let loadService: LoadService
 	}
 }
@@ -20,7 +21,7 @@ public extension Calendar {
 // MARK: -
 extension Calendar.Workflow: Workflow {
 	public struct State {
-		var year: Int
+		var year: Year
 	}
 
 	public enum Output {
@@ -64,23 +65,23 @@ private extension Calendar.Workflow {
 	typealias SeasonSelectorWorkflow = Calendar<LoadService>.Season.Selector.Workflow
 
 	enum Action {
-		case update(year: Int)
+		case update(year: Year)
 		case handleSeasonOutput(SeasonWorkflow.Output)
 		case handleSeasonNavigationOutput(SeasonNavigationWorkflow.Output)
 	}
 
-	func seasonWorkflow(for year: Int) -> SeasonWorkflow {
+	func seasonWorkflow(for year: Year) -> SeasonWorkflow {
 		.init(
 			year: year,
 			loadService: loadService
 		)
 	}
 
-	func seasonNavigationWorkflow(for year: Int) -> SeasonNavigationWorkflow {
+	func seasonNavigationWorkflow(for year: Year) -> SeasonNavigationWorkflow {
 		.init(year: year)
 	}
 
-	func seasonSelectorWorkflow(for year: Int) -> SeasonSelectorWorkflow {
+	func seasonSelectorWorkflow(for year: Year) -> SeasonSelectorWorkflow {
 		.init(year: year)
 	}
 }

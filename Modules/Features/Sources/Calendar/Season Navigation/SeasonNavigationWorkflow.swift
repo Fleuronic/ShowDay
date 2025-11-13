@@ -1,13 +1,14 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
 import Workflow
+import struct DrumCorps.Year
 
 private import MemberwiseInit
 
 extension Calendar.Season.Navigation {
 	@_UncheckedMemberwiseInit(.public)
 	struct Workflow {
-		private let year: Int
+		private let year: Year
 	}
 }
 

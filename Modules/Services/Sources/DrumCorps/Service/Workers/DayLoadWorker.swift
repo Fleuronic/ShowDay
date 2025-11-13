@@ -2,12 +2,13 @@
 
 public import ReactiveSwift
 public import WorkflowReactiveSwift
+public import struct DrumCorps.Year
 
 private import MemberwiseInit
 
 @_UncheckedMemberwiseInit(.public)
 public struct DayLoadWorker<Service: LoadSpec>: Sendable {
-	private let year: Int
+	private let year: Year
 	private let service: Service
 }
 

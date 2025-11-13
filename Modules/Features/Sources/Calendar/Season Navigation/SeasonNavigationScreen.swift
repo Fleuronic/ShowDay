@@ -1,5 +1,7 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
+import struct DrumCorps.Year
+
 extension Calendar.Season {
 	enum Navigation {}
 }
@@ -13,7 +15,7 @@ extension Calendar.Season.Navigation {
 
 // MARK: -
 extension Calendar.Season.Navigation.Screen {
-	init(year: Int) {
+	init(year: Year) {
 		text = "\(year) Drum Corps Season"
 	}
 }

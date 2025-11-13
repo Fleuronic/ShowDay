@@ -1,21 +1,15 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
-public import struct DrumCorps.Day
-public import struct DrumCorps.Event
-public import struct DrumCorps.Circuit
-public import struct DrumCorps.Location
-public import struct DrumCorps.Slot
-public import struct DrumCorps.Placement
-public import struct DrumCorps.Division
+public import DrumCorps
 public import protocol DrumCorpsService.LoadSpec
 public import protocol Catena.ResultProviding
 
 private import Foundation
 
 extension API: LoadSpec {
-	public func loadDays(in year: Int) async -> Results<Day> {
+	public func loadDays(in year: Year) async -> Results<Day> {
 		await drumKitAPI
-			.listEvents(for: year)
+			.listEvents(for: year.value)
 			.map { fields in
 				let tuples = fields.map { fields in
 					let location = Location(

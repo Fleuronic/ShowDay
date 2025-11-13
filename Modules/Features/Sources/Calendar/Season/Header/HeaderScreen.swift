@@ -1,6 +1,7 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
 import struct DrumCorps.Day
+import struct DrumCorps.Year
 import struct DrumCorps.Event
 import struct DrumCorps.Circuit
 
@@ -19,7 +20,7 @@ extension Header {
 extension Header.Screen {
 	init(
 		days: [Day],
-		year: Int,
+		year: Year,
 		viewItem: @escaping (Any) -> Void
 	) {
 		spanScreen = Span.Screen(days: days)

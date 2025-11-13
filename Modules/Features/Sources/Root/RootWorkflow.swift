@@ -5,6 +5,8 @@ public import WorkflowMenuUI
 public import WorkflowContainers
 public import enum Calendar.Calendar
 
+import struct DrumCorps.Year
+
 private import MemberwiseInit
 private import enum Settings.Settings
 
@@ -20,7 +22,7 @@ extension Root.Workflow: Workflow {
 	public typealias CalendarWorkflow = Calendar<LoadService>.Workflow
 
 	public struct State {
-		let year: Int
+		let year: Year
 	}
 	
 	public enum Output {
@@ -62,7 +64,7 @@ private extension Root.Workflow {
 		.init()
 	}
 
-	func calendarWorkflow(for year: Int) -> CalendarWorkflow {
+	func calendarWorkflow(for year: Year) -> CalendarWorkflow {
 		.init(
 			year: year,
 			loadService: loadService
