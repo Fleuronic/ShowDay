@@ -40,8 +40,8 @@ private extension Event.List.View {
 				title: row.title,
 				detail: row.detail,
 				subtitle: row.subtitle,
-				submenuItems: summaryView.menuItems(with: row.summaryScreen),
-				width: 425
+				width: 425,
+				submenuItems: summaryView.menuItems(with: row.summaryScreen)
 			)
 		}
 

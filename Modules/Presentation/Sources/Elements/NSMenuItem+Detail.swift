@@ -10,9 +10,9 @@ public extension NSMenuItem {
 		iconColor: NSColor? = nil,
 		iconSpacing: CGFloat = 18,
 		iconAdjustment: CGFloat = 3,
+		width: CGFloat = 325,
 		enabled: Bool = true,
 		submenuItems: [NSMenuItem] = [],
-		width: CGFloat = 325,
 		laysOutSubmenu: Bool = true,
 		action: Selector? = nil,
 		target: AnyObject? = nil
