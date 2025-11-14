@@ -53,7 +53,8 @@ public extension NSMenuItem {
 	@MainActor
 	convenience init(
 		title: String,
-		font: NSFont?,
+		font: NSFont? = nil,
+		width: CGFloat? = nil,
 		enabled: Bool = true,
 		action: Selector? = nil,
 		target: AnyObject? = nil
@@ -73,6 +74,12 @@ public extension NSMenuItem {
 			label.font = font
 			label.sizeToFit()
 
+			if let width {
+				label.frame.size.width = width
+			} else {
+				label.frame.size.width += 24
+			}
+
 			let containerView = NSView()
 			containerView.frame = label.bounds
 			containerView.addSubview(label)
@@ -81,6 +88,9 @@ public extension NSMenuItem {
 			label.frame.origin.y = 3
 			containerView.frame.size.height += 6
 			view = containerView
+		} else {
+			self.title = title
+			self.isEnabled = enabled
 		}
 
 		if let action, let target {

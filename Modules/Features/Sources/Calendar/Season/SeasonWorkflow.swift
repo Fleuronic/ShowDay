@@ -61,6 +61,13 @@ extension Calendar.Season.Workflow: Workflow {
 			viewItem: { sink.send(.viewItem($0)) },
 		)
 	}
+
+	public func workflowDidChange(from previousWorkflow: Self, state: inout State) {
+		guard year != previousWorkflow.year else { return }
+
+		state.season.days = .success([])
+		state.season.isLoadingDays = true
+	}
 }
 
 // MARK: -

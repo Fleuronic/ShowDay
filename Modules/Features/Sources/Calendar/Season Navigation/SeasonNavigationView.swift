@@ -20,6 +20,7 @@ extension Calendar.Season.Navigation.View: @MainActor MenuItemDisplaying {
 			.init(
 				title: screen.text,
 				font: .systemFont(ofSize: 18, weight: .medium),
+				width: 384,
 				enabled: false
 			)
 		]
