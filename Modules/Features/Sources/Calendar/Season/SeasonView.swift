@@ -35,7 +35,6 @@ extension Calendar.Season.View: @MainActor MenuItemDisplaying {
 		let separatorItem = NSMenuItem.separator()
 		let loadingItem = NSMenuItem(
 			title: "Loading…",
-			detail: " ",
 			width: 322,
 			enabled: false
 		)
