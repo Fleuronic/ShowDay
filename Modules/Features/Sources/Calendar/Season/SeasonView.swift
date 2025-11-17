@@ -33,7 +33,12 @@ extension Calendar.Season.View: @MainActor MenuItemDisplaying {
 		latestView = latestScreen.map(Latest.View.init)
 
 		let separatorItem = NSMenuItem.separator()
-		let loadingItem = NSMenuItem(title: "Loading…", enabled: false)
+		let loadingItem = NSMenuItem(
+			title: "Loading…",
+			width: 322,
+			enabled: false
+		)
+		
 		let headerItems = headerScreen.flatMap { headerView?.menuItems(with: $0) } ?? [loadingItem]
 		let latestItems = latestScreen.flatMap { latestView?.menuItems(with: $0) } ?? []
 
