@@ -38,7 +38,7 @@ extension Calendar.Season.View: @MainActor MenuItemDisplaying {
 			width: 322,
 			enabled: false
 		)
-		
+
 		let headerItems = headerScreen.flatMap { headerView?.menuItems(with: $0) } ?? [loadingItem]
 		let latestItems = latestScreen.flatMap { latestView?.menuItems(with: $0) } ?? []
 

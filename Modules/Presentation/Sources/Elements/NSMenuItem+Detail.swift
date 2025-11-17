@@ -17,10 +17,11 @@ public extension NSMenuItem {
 		action: Selector? = nil,
 		target: AnyObject? = nil
 	) {
+		let detail = detail == nil && width != nil ? " " : detail
 		if detail != nil || subtitle != nil {
 			self.init(
 				title: title,
-				detail: detail == nil && width != nil ? " " : detail,
+				detail: detail,
 				subtitle: subtitle,
 				icon: icon,
 				iconColor: iconColor,
@@ -54,7 +55,6 @@ public extension NSMenuItem {
 	convenience init(
 		title: String,
 		font: NSFont? = nil,
-		width: CGFloat? = nil,
 		enabled: Bool = true,
 		action: Selector? = nil,
 		target: AnyObject? = nil
@@ -73,12 +73,7 @@ public extension NSMenuItem {
 			let label = NSTextField(labelWithString: title)
 			label.font = font
 			label.sizeToFit()
-
-			if let width {
-				label.frame.size.width = width
-			} else {
-				label.frame.size.width += 24
-			}
+			label.frame.size.width += 24
 
 			let containerView = NSView()
 			containerView.frame = label.bounds
