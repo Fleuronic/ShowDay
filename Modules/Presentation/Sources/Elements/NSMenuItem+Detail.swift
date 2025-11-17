@@ -10,7 +10,7 @@ public extension NSMenuItem {
 		iconColor: NSColor? = nil,
 		iconSpacing: CGFloat = 18,
 		iconAdjustment: CGFloat = 3,
-		width: CGFloat = 325,
+		width: CGFloat? = nil,
 		enabled: Bool = true,
 		submenuItems: [NSMenuItem] = [],
 		laysOutSubmenu: Bool = true,
@@ -20,13 +20,13 @@ public extension NSMenuItem {
 		if detail != nil || subtitle != nil {
 			self.init(
 				title: title,
-				detail: detail,
+				detail: detail == nil && width != nil ? " " : detail,
 				subtitle: subtitle,
 				icon: icon,
 				iconColor: iconColor,
 				iconSpacing: iconSpacing,
 				iconAdjustment: iconAdjustment,
-				width: width,
+				width: width ?? 325,
 				reduceKerning: laysOutSubmenu
 			)
 		} else {
