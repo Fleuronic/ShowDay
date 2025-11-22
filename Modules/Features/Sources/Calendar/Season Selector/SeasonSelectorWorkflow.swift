@@ -13,7 +13,7 @@ extension Calendar.Season.Selector {
 		init(year: Year) {
 			self.year = year
 			
-			currentYear = 2025
+			currentYear = .init(Calendar.current.component(.year, from: Date.now))
 		}
 	}
 }
