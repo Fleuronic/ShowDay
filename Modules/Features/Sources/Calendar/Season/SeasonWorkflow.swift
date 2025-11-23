@@ -10,6 +10,7 @@ public import struct DrumCorps.Location
 public import struct DrumCorps.Venue
 public import struct DrumCorps.Slot
 public import struct DrumCorpsService.DayLoadWorker
+public import struct DrumCorpsService.CircuitLoadWorker
 
 private import MemberwiseInit
 
@@ -26,6 +27,9 @@ extension Calendar.Season.Workflow: Workflow {
 	@dynamicMemberLookup
 	public struct State {
 		var season: Calendar.Season
+		var isLoadingDays: Bool
+		var isLoadingCircuits: Bool
+		var excludedCircuits: Set<Circuit>
 	}
 
 	public enum Output {
@@ -39,10 +43,10 @@ extension Calendar.Season.Workflow: Workflow {
 
 	public func makeInitialState() -> State {
 		.init(
-			season: .init(
-				days: .success([]),
-				isLoadingDays: true
-			)
+			season: .init(),
+			isLoadingDays: true,
+			isLoadingCircuits: true,
+			excludedCircuits: []
 		)
 	}
 
@@ -51,22 +55,26 @@ extension Calendar.Season.Workflow: Workflow {
 		context: RenderContext<Self>
 	) -> Calendar.Season.Screen {
 		dayLoadWorker(for: state)?.running(in: context)
+		circuitLoadWorker(for: state)?.running(in: context)
 
 		let sink = context.makeSink(of: Action.self)
 		return .init(
-			year: year,
 			days: state.days,
-			isLoadingDays: state.season.isLoadingDays,
-			loadDays: { sink.send(.loadDays) },
+			circuits: state.circuits,
+			excludedCircuits: state.excludedCircuits,
+			loadContent: { sink.send(.loadContent) },
 			viewItem: { sink.send(.viewItem($0)) },
+			toggleCircuit: { sink.send(.toggleCircuit($0)) },
+			enableAllCircuits: { sink.send(.enableAllCircuits) }
 		)
 	}
 
 	public func workflowDidChange(from previousWorkflow: Self, state: inout State) {
 		guard year != previousWorkflow.year else { return }
 
-		state.season.days = .success([])
-		state.season.isLoadingDays = true
+		state.days = nil
+		state.isLoadingDays = true
+		state.isLoadingCircuits = true
 	}
 }
 
@@ -75,17 +83,34 @@ private extension Calendar.Season.Workflow {
 	typealias Worker = AnyWorkflow<Void, WorkerAction>
 
 	enum Action {
-		case loadDays
+		case loadContent
 		case viewItem(Any)
+		case toggleCircuit(Circuit)
+		case enableAllCircuits
 	}
 
 	enum WorkerAction {
 		case days(DayLoadWorker<LoadService>.Output)
+		case circuits(CircuitLoadWorker<LoadService>.Output)
 	}
 
 	func dayLoadWorker(for state: State) -> Worker? {
-		let worker = state.isLoadingDays ? DayLoadWorker(year: year, service: loadService) : nil
+		let worker = state.isLoadingDays ? DayLoadWorker(
+			year: year,
+			circuits: state.excludedCircuits,
+			service: loadService
+		) : nil
+		
 		return worker?.mapOutput(WorkerAction.days)
+	}
+
+	func circuitLoadWorker(for state: State) -> Worker? {
+		let worker = state.isLoadingCircuits ? CircuitLoadWorker(
+			year: year,
+			service: loadService
+		) : nil
+		
+		return worker?.mapOutput(WorkerAction.circuits)
 	}
 }
 
@@ -95,8 +120,9 @@ extension Calendar.Season.Workflow.Action: WorkflowAction {
 
 	func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
-		case .loadDays:
+		case .loadContent:
 			state.isLoadingDays = true
+			state.isLoadingCircuits = true
 		case let .viewItem(item):
 			if let event = item as? Event {
 				return .details(event)
@@ -111,6 +137,16 @@ extension Calendar.Season.Workflow.Action: WorkflowAction {
 			} else if let url = item as? URL {
 				return .groupURL(url)
 			}
+		case let .toggleCircuit(circuit):
+			if state.excludedCircuits.contains(circuit) {
+				state.excludedCircuits.remove(circuit)
+			} else {
+				state.excludedCircuits.insert(circuit)
+			}
+			state.isLoadingDays = true
+		case .enableAllCircuits:
+			state.excludedCircuits = []
+			state.isLoadingDays = true
 		}
 
 		return nil
@@ -131,9 +167,16 @@ extension Calendar.Season.Workflow.WorkerAction: WorkflowAction {
 
 	func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
-		case let .days(days):
-			state.days = days
+		case let .days(days): 
 			state.isLoadingDays = false
+			state.days = days
+		case let .circuits(circuits):
+			state.isLoadingCircuits = false
+
+			state.circuits = circuits
+			if case let .success(circuits) = circuits, Set(circuits).subtracting(state.excludedCircuits).isEmpty {
+				state.excludedCircuits = []
+			}
 		}
 
 		return nil

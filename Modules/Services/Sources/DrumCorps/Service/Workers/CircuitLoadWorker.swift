@@ -8,21 +8,20 @@ public import struct DrumCorps.Circuit
 private import MemberwiseInit
 
 @_UncheckedMemberwiseInit(.public)
-public struct DayLoadWorker<Service: LoadSpec>: Sendable {
+public struct CircuitLoadWorker<Service: LoadSpec>: Sendable {
 	private let year: Year
-	private let circuits: Set<Circuit>
 	private let service: Service
 }
 
 // MARK: -
-extension DayLoadWorker: Worker {
-	public func run() -> SignalProducer<Service.DayLoadResult, Never> {
+extension CircuitLoadWorker: Worker {
+	public func run() -> SignalProducer<Service.CircuitLoadResult, Never> {
 		.init { output in
-			let results = await service.loadDays(in: year, excluding: circuits).results
+			let results = await service.loadCircuits(in: year).results
 			for await result in results {
 				switch result {
-				case let .success(days):
-					output(.success(days))
+				case let .success(Circuits):
+					output(.success(Circuits))
 				case let .failure(error):
 					output(.failure(error))
 				}
@@ -31,7 +30,7 @@ extension DayLoadWorker: Worker {
 	}
 }
 
-extension DayLoadWorker: Equatable {
+extension CircuitLoadWorker: Equatable {
 	public static func ==(lhs: Self, rhs: Self) -> Bool {
 		true
 	}

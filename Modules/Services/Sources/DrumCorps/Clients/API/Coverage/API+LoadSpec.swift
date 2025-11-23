@@ -3,13 +3,12 @@
 public import DrumCorps
 public import protocol DrumCorpsService.LoadSpec
 public import protocol Catena.ResultProviding
-
-private import Foundation
+public import struct DrumCorpsService.EventCircuitLoadFields
 
 extension API: LoadSpec {
-	public func loadDays(in year: Year) async -> Results<Day> {
+	public func loadDays(in year: Year, excluding circuits: Set<Circuit>) async -> Results<Day> {
 		await drumKitAPI
-			.listEvents(for: year.value)
+			.listEvents(for: year.value, excludingCircuitsNamed: circuits.map(\.name))
 			.map { fields in
 				let tuples = fields.map { fields in
 					let location = Location(
@@ -123,6 +122,27 @@ extension API: LoadSpec {
 							}.map(\.1)
 						)
 					}
+			}
+	}
+
+	public func loadCircuits(in year: Year) async -> Results<Circuit> {
+		await drumKitAPI
+			.specifyingEventFields(EventCircuitLoadFields.self)
+			.listEvents(for: year.value)
+			.map { fields in
+				let circuitSet = Set(
+					fields.compactMap { fields in
+						fields.circuit.map {
+							Circuit(
+								name: $0.name,
+								abbreviation: $0.abbreviation,
+								url: nil
+							)
+						}
+					}
+				)
+
+				return Array(circuitSet).sorted()
 			}
 	}
 }

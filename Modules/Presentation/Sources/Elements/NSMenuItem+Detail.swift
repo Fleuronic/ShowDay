@@ -57,7 +57,9 @@ public extension NSMenuItem {
 		font: NSFont? = nil,
 		enabled: Bool = true,
 		action: Selector? = nil,
-		target: AnyObject? = nil
+		target: AnyObject? = nil,
+		state: NSControl.StateValue? = nil,
+		representedObject: Any? = nil
 	) {
 		self.init()
 
@@ -67,7 +69,7 @@ public extension NSMenuItem {
 				attributedTitle = .init(string: title, attributes: attributes)
 			} else {
 				self.title = title
-				self.isEnabled = enabled
+				isEnabled = enabled
 			}
 		} else if let font {
 			let label = NSTextField(labelWithString: title)
@@ -85,13 +87,16 @@ public extension NSMenuItem {
 			view = containerView
 		} else {
 			self.title = title
-			self.isEnabled = enabled
+			isEnabled = enabled
 		}
 
-		if let action, let target {
+		if let action, let target, isEnabled {
 			self.action = action
 			self.target = target
 		}
+
+		self.state = state ?? .off
+		self.representedObject = representedObject
 	}
 }
 
@@ -169,7 +174,7 @@ private extension NSMenuItem {
 		let spacingWidth = width - titleWidth - detailWidth
 		let spacingString = NSAttributedString(string: " ", attributes: [.kern: spacingWidth])
 
-		if reduceKerning {
+		if reduceKerning, !detail.isEmpty {
 			let lastIndex = detail.index(before: detail.endIndex)
 			let afterLast = detail.index(after: lastIndex)
 			let range = NSRange(lastIndex..<afterLast, in: detail)

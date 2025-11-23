@@ -6,18 +6,18 @@ public import ErgoAppKit
 public extension Calendar.Season {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let loadDays: () -> Void
+		private let loadContent: () -> Void
 		
 		private var headerView: Header.View?
 		private var latestView: Latest.View? 
 		
 		public init(screen: Screen) {
-			loadDays = screen.loadDays
+			loadContent = screen.loadContent
 		}
 
 		// MARK: NSMenuDelegate
 		@objc public func menuWillOpen(_ menu: NSMenu) {
-			loadDays()
+			loadContent()
 		}
 	}
 }
