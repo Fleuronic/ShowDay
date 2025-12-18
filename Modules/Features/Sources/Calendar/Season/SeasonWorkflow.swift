@@ -100,7 +100,7 @@ private extension Calendar.Season.Workflow {
 			circuits: state.excludedCircuits,
 			service: loadService
 		) : nil
-		
+
 		return worker?.mapOutput(WorkerAction.days)
 	}
 
@@ -109,7 +109,7 @@ private extension Calendar.Season.Workflow {
 			year: year,
 			service: loadService
 		) : nil
-		
+
 		return worker?.mapOutput(WorkerAction.circuits)
 	}
 }
@@ -167,7 +167,7 @@ extension Calendar.Season.Workflow.WorkerAction: WorkflowAction {
 
 	func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
-		case let .days(days): 
+		case let .days(days):
 			state.isLoadingDays = false
 			state.days = days
 		case let .circuits(circuits):

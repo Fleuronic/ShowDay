@@ -20,8 +20,8 @@ extension CircuitLoadWorker: Worker {
 			let results = await service.loadCircuits(in: year).results
 			for await result in results {
 				switch result {
-				case let .success(Circuits):
-					output(.success(Circuits))
+				case let .success(circuits):
+					output(.success(circuits))
 				case let .failure(error):
 					output(.failure(error))
 				}

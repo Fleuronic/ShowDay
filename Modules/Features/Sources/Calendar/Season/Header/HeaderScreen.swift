@@ -27,12 +27,12 @@ extension Header.Screen {
 	) {
 		spanScreen = days.isEmpty ? nil : .init(days: days)
 		eventListScreen = days.isEmpty ? nil : .init(
-			days: days, 
+			days: days,
 			viewItem: viewItem
 		)
-		
+
 		circuitSelectorScreen = circuits.count < 2 ? nil : .init(
-			circuits: circuits, 
+			circuits: circuits,
 			excludedCircuits: excludedCircuits,
 			toggleCircuit: toggleCircuit,
 			enableAllCircuits: enableAllCircuits
