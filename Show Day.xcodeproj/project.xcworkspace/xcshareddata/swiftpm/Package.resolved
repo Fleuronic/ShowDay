@@ -1,5 +1,5 @@
 {
-  "originHash" : "ff0baba395e8ead30315cd477f3d7c803a064b31d4323b30e83ef6c8f49d4da6",
+  "originHash" : "b6e1e202d5486069346b41450c91d742e684773ec89a6d863352d3add9098554",
   "pins" : [
     {
       "identity" : "caesura",
@@ -7,7 +7,7 @@
       "location" : "https://github.com/Fleuronic/Caesura",
       "state" : {
         "branch" : "main",
-        "revision" : "992f563ea53284bbdf1a458f76a281e2244e46cc"
+        "revision" : "48fdf7b9825230a950cecb52232061ed203f47d1"
       }
     },
     {
@@ -52,7 +52,7 @@
       "location" : "https://github.com/Fleuronic/DrumKit",
       "state" : {
         "branch" : "main",
-        "revision" : "4ee797e50a3a0d2ec9bc242c30b518f71dd1006e"
+        "revision" : "664357b7165bb5256b8fc9941f6505772fa253b6"
       }
     },
     {
@@ -61,7 +61,7 @@
       "location" : "https://github.com/Fleuronic/DrumKitAPI",
       "state" : {
         "branch" : "main",
-        "revision" : "9331f14de118b0a5f18bf4c90ce5e4ba38aeac07"
+        "revision" : "1b4f61647525949e0a4820e0622b32edcc02145d"
       }
     },
     {
@@ -79,7 +79,7 @@
       "location" : "https://github.com/Fleuronic/DrumKitService",
       "state" : {
         "branch" : "main",
-        "revision" : "09b556a39c79c3531217d5de0839074c78148bde"
+        "revision" : "806ea86c3cafdb88ad75c25fbcc6a0a2b1e3960c"
       }
     },
     {
@@ -133,7 +133,7 @@
       "location" : "https://github.com/jordanekay/PersistDB",
       "state" : {
         "branch" : "master",
-        "revision" : "d02f1112f9965af463226fa61f9884e6a27ea211"
+        "revision" : "505ab3280c175f054fcccdaeda7a41cf8c22b06f"
       }
     },
     {
@@ -249,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
-        "revision" : "4c27acf5394b645b70d8ba19dc249c0472d5f618",
-        "version" : "1.7.0"
+        "revision" : "31073495cae9caf243c440eac94b3ab067e3d7bc",
+        "version" : "1.8.0"
       }
     }
   ],

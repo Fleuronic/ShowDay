@@ -9,7 +9,7 @@ public import Foundation
 
 private import MemberwiseInit
 
-public struct Circuit: Hashable {
+public struct Circuit: Hashable, Sendable {
 	public let name: String
 	public let abbreviation: String?
 	public let url: URL?
@@ -30,6 +30,19 @@ public struct Circuit: Hashable {
 }
 
 // MARK: -
+public extension Circuit {
+	var shortestName: String {
+		abbreviation ?? name
+	}
+}
+
+// MARK: -
+extension Circuit: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.name == rhs.name
+	}
+}
+
 extension Circuit: Comparable {
 	public static func < (lhs: Self, rhs: Self) -> Bool {
 		lhs.priority < rhs.priority
@@ -53,7 +66,8 @@ private extension Circuit {
 			"Drum Corps International",
 			"Drum Corps Associates",
 			"Drum Corps United Kingdom",
-			"Dutch Music Games"
+			"Dutch Music Games",
+			"American Legion"
 		]
 	}
 }

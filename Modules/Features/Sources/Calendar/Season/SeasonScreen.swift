@@ -10,35 +10,43 @@ import struct DrumCorps.Venue
 
 public extension Calendar.Season {
 	struct Screen {
-		let year: Year
-		let days: LoadService.DayLoadResult
-		let isLoadingDays: Bool
-		let loadDays: () -> Void
+		let days: LoadService.DayLoadResult?
+		let circuits: LoadService.CircuitLoadResult?
+		let excludedCircuits: Set<Circuit>
+		let loadContent: () -> Void
 		let viewItem: (Any) -> Void
+		let toggleCircuit: (Circuit) -> Void
+		let enableAllCircuits: () -> Void
 	}
 }
 
 // MARK: -
 extension Calendar.Season.Screen {
 	var headerScreen: Header.Screen? {
-		loadedDays
-			.map { ($0, year, viewItem) }
-			.map(Header.Screen.init)
+		switch (days, circuits) {
+		case let (.success(days), .success(circuits)):
+			.init(
+				days: days,
+				circuits: circuits,
+				excludedCircuits: excludedCircuits,
+				viewItem: viewItem,
+				toggleCircuit: toggleCircuit,
+				enableAllCircuits: enableAllCircuits
+			)
+		default:
+			nil
+		}
 	}
 
 	var latestScreen: Latest.Screen? {
-		loadedDays
-			.map { ($0.prefix(3), viewItem) }
-			.map(Latest.Screen.init)
-	}
-}
-
-// MARK: -
-private extension Calendar.Season.Screen {
-	var loadedDays: [Day]? {
 		switch days {
-		case .success(let days) where !days.isEmpty: days
-		default: nil
+		case let .success(days):
+			.init(
+				days: days.prefix(3),
+				viewItem: viewItem
+			)
+		default:
+			nil
 		}
 	}
 }
