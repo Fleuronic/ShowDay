@@ -24,7 +24,7 @@ extension Root.Workflow: Workflow {
 	public struct State {
 		let year: Year
 	}
-	
+
 	public enum Output {
 		case calendarOutput(CalendarWorkflow.Output)
 		case termination

@@ -19,15 +19,19 @@ extension Header {
 extension Header.Screen {
 	init(
 		days: [Day],
+		viewItem: @escaping (Any) -> Void,
+		showEventList: @escaping (Bool) -> Void,
+		isShowingEventList: Bool,
 		circuits: [Circuit],
 		excludedCircuits: Set<Circuit>,
-		viewItem: @escaping (Any) -> Void,
 		toggleCircuit: @escaping (Circuit) -> Void,
-		enableAllCircuits: @escaping () -> Void
+		enableAllCircuits: @escaping () -> Void,
 	) {
 		spanScreen = days.isEmpty ? nil : .init(days: days)
 		eventListScreen = days.isEmpty ? nil : .init(
 			days: days,
+			showContent: { showEventList(true) },
+			isShowingContent: isShowingEventList,
 			viewItem: viewItem
 		)
 

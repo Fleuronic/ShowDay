@@ -9,10 +9,31 @@ import struct DrumCorps.Slot
 extension Event.Schedule {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let slotViews: [Slot.View]
+		private let titleItem: NSMenuItem
+		private let subtitleItem: NSMenuItem
+		private let separatorItem = NSMenuItem.separator()
+		private let footerItem: NSMenuItem
+
+		private var slotViews: [Slot.View]
 
 		init(screen: Screen) {
-			slotViews = screen.slotScreens.map(Slot.View.init)
+			titleItem = .init(
+				title: screen.title,
+				font: .systemFont(ofSize: 13, weight: .medium),
+				enabled: false
+			)
+
+			subtitleItem = .init(
+				title: screen.subtitle,
+				font: .systemFont(ofSize: 12)
+			)
+
+			footerItem = .init(
+				title: screen.footer,
+				font: .systemFont(ofSize: 12)
+			)
+
+			slotViews = .init(screen: screen)
 		}
 	}
 }
@@ -20,41 +41,32 @@ extension Event.Schedule {
 // MARK: -
 extension Event.Schedule.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		let titleItem = NSMenuItem(
-			title: screen.title,
-			font: .systemFont(ofSize: 13, weight: .medium),
-			enabled: false
-		)
+		titleItem.updateTitle(screen.title)
+		subtitleItem.updateTitle(screen.subtitle)
+		footerItem.updateTitle(screen.footer)
 
-		let subtitleItem = NSMenuItem(
-			title: screen.subtitle,
-			font: .systemFont(ofSize: 12)
-		)
+		if slotViews.count != screen.slotScreens.count {
+			slotViews = .init(screen: screen)
+		}
 
+		let footerItems = screen.footer.map { _ in [separatorItem, footerItem] } ?? []
 		let slotItems = zip(screen.slotScreens, slotViews).flatMap { screen, view in
 			view.menuItems(with: screen)
 		}
 
-		return [titleItem, subtitleItem] + slotItems + footerItems(for: screen.footer)
-	}
-}
-
-// MARK: -
-private extension Event.Schedule.View {
-	func footerItems(for footer: String?) -> [NSMenuItem] {
-		let separatorItem = NSMenuItem.separator()
-		return footer.map { text in
-			[
-				separatorItem, .init(
-					title: text,
-					font: .systemFont(ofSize: 12)
-				)
-			]			
-		} ?? []
+		return [titleItem, subtitleItem] + slotItems + footerItems
 	}
 }
 
 // MARK: -
 extension Event.Schedule.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Event.Schedule.View
+}
+
+// MARK: -
+@MainActor
+private extension [Slot.View] {
+	init(screen: Event.Schedule.Screen) {
+		self = screen.slotScreens.map(Slot.View.init)
+	}
 }

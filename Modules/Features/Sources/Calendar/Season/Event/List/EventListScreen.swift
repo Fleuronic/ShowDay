@@ -7,7 +7,8 @@ extension Event.List {
 	struct Screen {
 		let title = "Full Calendar"
 		let eventCountText: String
-		let sections: [Section]
+		let sections: [Section]?
+		let showContent: () -> Void
 	}
 }
 
@@ -17,7 +18,7 @@ extension Event.List.Screen {
 		let name: String
 		let rows: [Row]
 	}
-	
+
 	struct Row {
 		let title: String
 		let detail: String?
@@ -30,14 +31,18 @@ extension Event.List.Screen {
 
 	init(
 		days: [Day],
+		showContent: @escaping () -> Void,
+		isShowingContent: Bool,
 		viewItem: @escaping (Any) -> Void
 	) {
 		let list = Event.List(days: days)
 		let content = list.content
 		eventCountText = "\(content.count) Events"
 
+		self.showContent = showContent
+
 		let rows = content.map { ($0, $1, viewItem) }.map(Row.init)
-		sections = Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted()
+		sections = isShowingContent ? Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted() : nil
 		// TODO: More sorting
 	}
 }
@@ -57,13 +62,13 @@ extension Event.List.Screen.Row {
 		viewItem: @escaping (Any) -> Void
 	) {
 		self.day = day
-		
+
 		title = event.showDisplayName ?? event.location.description
 		detail = event.showDisplayName.map { _ in event.location.description }
 		subtitle = day.dateString
 		sectionName = day.month
 		summaryScreen = .init(
-			day: day, 
+			day: day,
 			event: event,
 			viewItem: viewItem
 		)

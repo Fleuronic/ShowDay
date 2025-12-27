@@ -10,10 +10,14 @@ extension Event.Details {
 	final class View: NSObject, NSMenuDelegate {
 		private let infoView: Event.Info.View
 		private let scheduleView: Event.Schedule.View
+		private let item: NSMenuItem
+		private let separatorItem = NSMenuItem.separator()
 
 		init(screen: Screen) {
 			infoView = .init(screen: screen.infoScreen)
 			scheduleView = .init(screen: screen.scheduleScreen)
+			item = .init(title: "Event Details")
+			item.submenu = .init()
 		}
 	}
 }
@@ -23,14 +27,8 @@ extension Event.Details.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		let infoItems = infoView.menuItems(with: screen.infoScreen)
 		let scheduleItems = scheduleView.menuItems(with: screen.scheduleScreen)
-		let separatorItem = NSMenuItem.separator()
-
-		return [
-			.init(
-				title: "Event Details", 
-				submenuItems: infoItems + [separatorItem] + scheduleItems
-			)
-		]
+		item.submenu?.items = infoItems + [separatorItem] + scheduleItems
+		return [item]
 	}
 }
 

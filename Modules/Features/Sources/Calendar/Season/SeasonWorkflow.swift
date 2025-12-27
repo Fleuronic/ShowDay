@@ -29,6 +29,7 @@ extension Calendar.Season.Workflow: Workflow {
 		var season: Calendar.Season
 		var isLoadingDays: Bool
 		var isLoadingCircuits: Bool
+		var isShowingEventList: Bool
 		var excludedCircuits: Set<Circuit>
 	}
 
@@ -44,8 +45,9 @@ extension Calendar.Season.Workflow: Workflow {
 	public func makeInitialState() -> State {
 		.init(
 			season: .init(),
-			isLoadingDays: true,
+			isLoadingDays: false,
 			isLoadingCircuits: true,
+			isShowingEventList: false,
 			excludedCircuits: []
 		)
 	}
@@ -64,6 +66,8 @@ extension Calendar.Season.Workflow: Workflow {
 			excludedCircuits: state.excludedCircuits,
 			loadContent: { sink.send(.loadContent) },
 			viewItem: { sink.send(.viewItem($0)) },
+			showEventList: { sink.send(.showEventList($0)) },
+			isShowingEventList: state.isShowingEventList,
 			toggleCircuit: { sink.send(.toggleCircuit($0)) },
 			enableAllCircuits: { sink.send(.enableAllCircuits) }
 		)
@@ -72,8 +76,7 @@ extension Calendar.Season.Workflow: Workflow {
 	public func workflowDidChange(from previousWorkflow: Self, state: inout State) {
 		guard year != previousWorkflow.year else { return }
 
-		state.days = nil
-		state.isLoadingDays = true
+		state.season = .init()
 		state.isLoadingCircuits = true
 	}
 }
@@ -85,6 +88,7 @@ private extension Calendar.Season.Workflow {
 	enum Action {
 		case loadContent
 		case viewItem(Any)
+		case showEventList(Bool)
 		case toggleCircuit(Circuit)
 		case enableAllCircuits
 	}
@@ -121,8 +125,9 @@ extension Calendar.Season.Workflow.Action: WorkflowAction {
 	func apply(toState state: inout WorkflowType.State) -> WorkflowType.Output? {
 		switch self {
 		case .loadContent:
-			state.isLoadingDays = true
-			state.isLoadingCircuits = true
+			if state.circuits != nil {
+				state.isLoadingDays = true
+			}
 		case let .viewItem(item):
 			if let event = item as? Event {
 				return .details(event)
@@ -137,14 +142,19 @@ extension Calendar.Season.Workflow.Action: WorkflowAction {
 			} else if let url = item as? URL {
 				return .groupURL(url)
 			}
+		case let .showEventList(show):
+			state.isShowingEventList = show
 		case let .toggleCircuit(circuit):
 			if state.excludedCircuits.contains(circuit) {
 				state.excludedCircuits.remove(circuit)
 			} else {
 				state.excludedCircuits.insert(circuit)
 			}
+
+			state.days = nil
 			state.isLoadingDays = true
 		case .enableAllCircuits:
+			state.days = nil
 			state.excludedCircuits = []
 			state.isLoadingDays = true
 		}
@@ -172,11 +182,13 @@ extension Calendar.Season.Workflow.WorkerAction: WorkflowAction {
 			state.days = days
 		case let .circuits(circuits):
 			state.isLoadingCircuits = false
-
 			state.circuits = circuits
+
 			if case let .success(circuits) = circuits, Set(circuits).subtracting(state.excludedCircuits).isEmpty {
 				state.excludedCircuits = []
 			}
+
+			state.isLoadingDays = true
 		}
 
 		return nil

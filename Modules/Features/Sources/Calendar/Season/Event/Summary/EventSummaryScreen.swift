@@ -11,10 +11,10 @@ extension Event {
 // MARK: -
 extension Event.Summary {
 	struct Screen {
-		let title: String
+		let title: String?
 		let subtitle: String
 		let viewDetails: (() -> Void)?
-		let viewLocation: (() -> Void)?
+		let viewLocation: (() -> Void)
 		let placementSummaryScreen: Placement.Summary.Screen
 		let eventResultsScreen: Event.Results.Screen
 		let eventDetailsScreen: Event.Details.Screen
@@ -28,7 +28,7 @@ extension Event.Summary.Screen {
 		event: Event,
 		viewItem: @escaping (Any) -> Void
 	) {
-		title = event.showName!
+		title = event.showName
 		subtitle = event.location.description
 		viewDetails = { viewItem(event) }
 		viewLocation = { viewItem(event.venue ?? event.location) }

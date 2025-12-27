@@ -5,25 +5,41 @@ import struct DrumCorps.Placement
 extension Placement {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		init(screen: Screen) {}
+		private var item: NSMenuItem
+		private var screen: Screen
+
+		init(screen: Screen) {
+			item = .init(screen: screen)
+			self.screen = screen
+		}
 	}
 }
 
 // MARK: -
 extension Placement.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		[
-			.init(
-				title: screen.name,
-				detail: screen.scoreText,
-				icon: .init(
-					systemSymbolName: screen.rankIconName, 
-					accessibilityDescription: nil
-				),
-				iconColor: .init(rankIconColor: screen.rankIconColor),
-				submenuItems: [.init()]
-			)
-		]
+		if self.screen != screen {
+			self.screen = screen
+			item = .init(screen: screen)
+		}
+
+		return [item]
+	}
+}
+
+@MainActor
+private extension NSMenuItem {
+	convenience init(screen: Placement.Screen) {
+		self.init(
+			title: screen.name,
+			detail: screen.scoreText,
+			icon: .init(
+				systemSymbolName: screen.rankIconName,
+				accessibilityDescription: nil
+			),
+			iconColor: .init(rankIconColor: screen.rankIconColor),
+			submenuItems: [.init()]
+		)
 	}
 }
 

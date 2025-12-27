@@ -3,7 +3,7 @@
 import struct DrumCorps.Placement
 
 extension Placement {
-	struct Screen {
+	struct Screen: Equatable {
 		let name: String
 		let scoreText: String
 		let rankIconName: String
@@ -13,7 +13,7 @@ extension Placement {
 
 // MARK: -
 extension Placement.Screen {
-	enum RankIconColor {
+	enum RankIconColor: Equatable {
 		case gold
 		case silver
 		case bronze

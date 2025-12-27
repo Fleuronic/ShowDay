@@ -15,7 +15,7 @@ extension Calendar.Season.Navigation {
 // MARK: -
 extension Calendar.Season.Navigation.Workflow: Workflow {
 	struct State {
-	
+
 	}
 
 	enum Output {

@@ -5,10 +5,33 @@ import struct DrumCorps.Slot
 extension Slot {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
+		private let item: NSMenuItem
 		private let viewGroup: () -> Void
 
 		init(screen: Screen) {
+			item = .init(
+				title: screen.title,
+				detail: screen.detail,
+				subtitle: screen.subtitle,
+				icon: screen.groupIconName.flatMap { name in
+					.init(
+						systemSymbolName: name,
+						accessibilityDescription: nil
+					)
+				},
+				iconColor: .group(isActive: screen.isGroupActive),
+				iconSpacing: 22,
+				iconAdjustment: -1,
+				width: 452,
+				laysOutSubmenu: false
+			)
+
 			viewGroup = screen.viewGroup
+
+			super.init()
+
+			item.action = #selector(itemSelected)
+			item.target = self
 		}
 
 		@objc private func itemSelected() {
@@ -20,27 +43,7 @@ extension Slot {
 // MARK: -
 extension Slot.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		let item = NSMenuItem(
-			title: screen.title,
-			detail: screen.detail,
-			subtitle: screen.subtitle,
-			icon: screen.groupIconName.flatMap { name in
-				.init(
-					systemSymbolName: name,
-					accessibilityDescription: nil
-				)
-			},
-			iconColor: .group(isActive: screen.isGroupActive),
-			iconSpacing: 22,
-			iconAdjustment: -1,
-			width: 452,
-			laysOutSubmenu: false
-		)
-
-		item.action = #selector(itemSelected)
-		item.target = self
-
-		return [item]
+		[item]
 	}
 }
 

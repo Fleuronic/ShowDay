@@ -1,4 +1,5 @@
 public import AppKit
+import ObjectiveC
 
 public extension NSMenuItem {
 	@MainActor
@@ -44,7 +45,7 @@ public extension NSMenuItem {
 			submenu.items = submenuItems
 			self.submenu = submenu
 		}
-		
+
 		if let action, let target {
 			self.action = action
 			self.target = target
@@ -53,7 +54,7 @@ public extension NSMenuItem {
 
 	@MainActor
 	convenience init(
-		title: String,
+		title: String? = nil,
 		font: NSFont? = nil,
 		enabled: Bool = true,
 		action: Selector? = nil,
@@ -64,14 +65,14 @@ public extension NSMenuItem {
 		self.init()
 
 		if enabled {
-			if let font {
+			if let font, let title {
 				let attributes: [NSAttributedString.Key: NSFont] = [.font: font]
 				attributedTitle = .init(string: title, attributes: attributes)
 			} else {
-				self.title = title
+				title.map { self.title = $0 }
 				isEnabled = enabled
 			}
-		} else if let font {
+		} else if let font, let title {
 			let label = NSTextField(labelWithString: title)
 			label.font = font
 			label.sizeToFit()
@@ -80,13 +81,13 @@ public extension NSMenuItem {
 			let containerView = NSView()
 			containerView.frame = label.bounds
 			containerView.addSubview(label)
-			
+
 			label.frame.origin.x = 12
 			label.frame.origin.y = 3
 			containerView.frame.size.height += 6
 			view = containerView
 		} else {
-			self.title = title
+			title.map { self.title = $0 }
 			isEnabled = enabled
 		}
 
@@ -97,6 +98,30 @@ public extension NSMenuItem {
 
 		self.state = state ?? .off
 		self.representedObject = representedObject
+	}
+
+	@MainActor
+	func updateTitle(_ title: String?) {
+		guard let title else { return }
+
+		if let textField = view?.subviews.first as? NSTextField {
+			textField.stringValue = title
+		} else if let attributedTitle {
+			let attributes = attributedTitle.attributes(at: 0, effectiveRange: nil)
+			self.attributedTitle = .init(string: title, attributes: attributes)
+		} else {
+			self.title = title
+		}
+	}
+
+	@MainActor
+	func updateDetail(_ detail: String) {
+		let item = NSMenuItem(
+			title: title,
+			detail: detail
+		)
+
+		attributedTitle = item.attributedTitle
 	}
 }
 
@@ -117,9 +142,9 @@ private extension NSMenuItem {
 
 		let titleFont = NSFont.systemFont(ofSize: 13)
 		let string = NSMutableAttributedString(
-			string: title, 
+			string: title,
 			attributes: [
-				.font: titleFont, 
+				.font: titleFont,
 				.foregroundColor: NSColor.labelColor
 			]
 		)
@@ -132,9 +157,9 @@ private extension NSMenuItem {
 			let attachment = NSTextAttachment()
 			attachment.image = icon
 			attachment.bounds = CGRect(
-				x: 0, 
-				y: (titleFont.capHeight - iconHeight).rounded() / 2, 
-				width: iconWidth, 
+				x: 0,
+				y: (titleFont.capHeight - iconHeight).rounded() / 2,
+				width: iconWidth,
 				height: iconHeight
 			)
 
@@ -160,16 +185,16 @@ private extension NSMenuItem {
 			attributedTitle = string
 			return
 		}
-		
+
 		let titleWidth = string.size().width
 		let detailString = NSMutableAttributedString(
-			string: detail, 
+			string: detail,
 			attributes: [
-				.font: titleFont, 
+				.font: titleFont,
 				.foregroundColor: NSColor.disabledControlTextColor
 			]
 		)
-		
+
 		let detailWidth = detailString.size().width
 		let spacingWidth = width - titleWidth - detailWidth
 		let spacingString = NSAttributedString(string: " ", attributes: [.kern: spacingWidth])

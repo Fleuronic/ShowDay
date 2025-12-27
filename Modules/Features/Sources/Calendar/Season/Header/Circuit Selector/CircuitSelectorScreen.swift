@@ -13,10 +13,9 @@ extension Circuit.Selector {
 		let allCircuitsText: String?
 		let circuitSelectionText: String
 		let circuits: [Circuit]
+		let excludedCircuits: Set<Circuit>
 		let toggleCircuit: (Circuit) -> Void
 		let enableAllCircuits: () -> Void
-
-		private let excludedCircuits: Set<Circuit>
 	}
 }
 
@@ -46,8 +45,8 @@ extension Circuit.Selector.Screen {
 		}
 	}
 
-	func title(for circuit: Circuit) -> String { 
-		circuit.description 
+	func title(for circuit: Circuit) -> String {
+		circuit.description
 	}
 
 	func isCircuitExcluded(_ circuit: Circuit) -> Bool {

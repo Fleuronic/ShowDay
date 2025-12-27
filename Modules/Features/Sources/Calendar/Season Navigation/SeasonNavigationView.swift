@@ -8,7 +8,15 @@ private import Elements
 extension Calendar.Season.Navigation {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		init(screen: Screen) {}
+		private let item: NSMenuItem
+
+		init(screen: Screen) {
+			item = .init(
+				title: screen.text,
+				font: .systemFont(ofSize: 18, weight: .medium),
+				enabled: false
+			)
+		}
 	}
 }
 
@@ -16,13 +24,8 @@ extension Calendar.Season.Navigation {
 extension Calendar.Season.Navigation.View: @MainActor MenuItemDisplaying {
 	// MARK: MenuItemDisplaying
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		[
-			.init(
-				title: screen.text,
-				font: .systemFont(ofSize: 18, weight: .medium),
-				enabled: false
-			)
-		]
+		item.updateTitle(screen.text)
+		return [item]
 	}
 }
 

@@ -9,11 +9,19 @@ import struct DrumCorps.Event
 extension Day.Summary {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let eventSummaryViews: [Event.Summary.View]
+		private let titleItem: NSMenuItem
+
+		private var eventSummaryViews: [Event.Summary.View]
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
-			eventSummaryViews = screen.eventSummaryScreens.map(Event.Summary.View.init)
+			titleItem = .init(
+				title: screen.title,
+				font: .systemFont(ofSize: 14, weight: .medium),
+				enabled: false
+			)
+
+			eventSummaryViews = .init(screen: screen)
 		}
 	}
 }
@@ -21,21 +29,27 @@ extension Day.Summary {
 // MARK: -
 extension Day.Summary.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		let titleItem = NSMenuItem(
-			title: screen.title,
-			font: .systemFont(ofSize: 14, weight: .medium),
-			enabled: false
-		)
+		titleItem.updateTitle(screen.title)
 
-		let eventSummaryItems = zip(screen.eventSummaryScreens, eventSummaryViews).flatMap { screen, view in
-			view.menuItems(with: screen)
+		if eventSummaryViews.count != screen.eventSummaryScreens.count {
+			eventSummaryViews = .init(screen: screen)
 		}
 
-		return [titleItem] + eventSummaryItems
+		return [titleItem] + zip(screen.eventSummaryScreens, eventSummaryViews).flatMap { screen, view in
+			view.menuItems(with: screen)
+		}
 	}
 }
 
 // MARK: -
 extension Day.Summary.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Day.Summary.View
+}
+
+// MARK: -
+@MainActor
+private extension [Event.Summary.View] {
+	init(screen: Day.Summary.Screen) {
+		self = screen.eventSummaryScreens.map(Event.Summary.View.init)
+	}
 }

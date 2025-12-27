@@ -19,7 +19,7 @@ extension Calendar.Season.Selector.Screen {
 	struct Section {
 		let rows: [Row]
 	}
-	
+
 	init(
 		year: Year,
 		currentYear: Year,
@@ -29,7 +29,7 @@ extension Calendar.Season.Selector.Screen {
 			year: year,
 			currentYear: currentYear
 		)
-		
+
 		sections = [
 			Self.section(for: selector.nextDecades),
 			.init(rows: Self.rows(for: selector.years)),
@@ -38,8 +38,10 @@ extension Calendar.Season.Selector.Screen {
 
 		self.year = year
 		self.selectSeason = selectSeason
-		
-		selectCurrentSeason = { selectSeason(currentYear) }
+
+		selectCurrentSeason = {
+			selectSeason(currentYear)
+		}
 		currentSeasonText = year == currentYear ? nil : "Return to Current Season (\(currentYear))"
 	}
 }
@@ -60,7 +62,7 @@ private extension Calendar.Season.Selector.Screen {
 	static func rows(for years: [Year]) -> [Section.Row] {
 		years.reversed().map { year in
 			.init(
-				title: "\(year) Season", 
+				title: "\(year) Season",
 				content: .year(year)
 			)
 		}

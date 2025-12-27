@@ -34,7 +34,7 @@ extension API: LoadSpec {
 
 						return (
 							slot: Slot(
-								time: slot.time, 
+								time: slot.time,
 								name: slot.feature?.name ?? groupName!,
 								detail: featureGroup ?? location?.description,
 								url: corps?.url,
@@ -74,7 +74,7 @@ extension API: LoadSpec {
 							false
 						}
 					}
-					
+
 					return (
 						date: fields.date,
 						firstSlotTime: fields.slots.first?.time,
@@ -87,7 +87,7 @@ extension API: LoadSpec {
 									url: circuit.url
 								)
 							},
-							showName: fields.show?.name,  
+							showName: fields.show?.name,
 							venue: fields.venue.map { venue in
 								.init(
 									name: venue.name,
