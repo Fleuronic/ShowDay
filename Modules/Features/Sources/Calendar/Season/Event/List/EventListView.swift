@@ -8,13 +8,38 @@ import struct DrumCorps.Event
 extension Event.List {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let summaryViews: [[Event.Summary.View]]
+		private let loadingItem: NSMenuItem
+		private let showContent: () -> Void
+
+		private var summaryViews: [[Event.Summary.View]]?
+		private var item: NSMenuItem
+		private var sections: [Event.List.Screen.Section]?
+		private var eventCountText: String
+
+		// MARK: NSMenuDelegate
+		public func menuWillOpen(_ menu: NSMenu) {
+			if sections == nil {
+				DispatchQueue.main.async {
+					self.showContent()
+				}
+			}
+		}
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
-			summaryViews = screen.sections.map { section in
-				section.rows.map(\.summaryScreen).map(Event.Summary.View.init)
-			}
+			loadingItem = .init(
+				title: "Loading…",
+				width: 425,
+				enabled: false
+			)
+
+			showContent = screen.showContent
+			item = .init(
+				title: screen.title,
+				detail: screen.eventCountText
+			)
+
+			eventCountText = screen.eventCountText
 		}
 	}
 }
@@ -22,13 +47,35 @@ extension Event.List {
 // MARK: -
 extension Event.List.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		[
-			.init(
-				title: screen.title,
-				detail: screen.eventCountText,
-				submenuItems: zip(screen.sections, summaryViews).flatMap(items)
-			)
-		]
+		if eventCountText != screen.eventCountText { // TODO: Not just count but sections
+			sections = nil
+			summaryViews = nil
+			eventCountText = screen.eventCountText
+
+			item.updateTitle(screen.title)
+			item.updateDetail(eventCountText)
+			item.submenu?.items = [loadingItem]
+		}
+
+		if let submenu = item.submenu {
+			if let sections = screen.sections {
+				let summaryViews = summaryViews ?? sections.map { section in
+					section.rows.map(\.summaryScreen).map(Event.Summary.View.init)
+				}
+
+				submenu.items = zip(sections, summaryViews).flatMap(items)
+
+				self.summaryViews = summaryViews
+				self.sections = sections
+			}
+		} else {
+			let submenu = NSMenu()
+			submenu.delegate = self
+			submenu.items = [loadingItem]
+			item.submenu = submenu
+		}
+
+		return [item]
 	}
 }
 

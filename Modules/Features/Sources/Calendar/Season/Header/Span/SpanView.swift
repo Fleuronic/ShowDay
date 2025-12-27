@@ -6,20 +6,24 @@ import ErgoAppKit
 extension Span {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		init(screen: Screen) {}
+		private var item: NSMenuItem
+
+		init(screen: Screen) {
+			item = .init(
+				title: screen.rangeText,
+				detail: screen.dayCountText,
+				enabled: false
+			)
+		}
 	}
 }
 
 // MARK: -
 extension Span.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		[
-			.init(
-				title: screen.rangeText,
-				detail: screen.dayCountText,
-				enabled: false
-			)
-		]
+		item.updateTitle(screen.rangeText)
+		item.updateDetail(screen.dayCountText)
+		return [item]
 	}
 }
 

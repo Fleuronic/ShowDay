@@ -11,6 +11,13 @@ extension Circuit.Selector {
 		private let toggleCircuit: (Circuit) -> Void
 		private let enableAllCircuits: () -> Void
 
+		private var item: NSMenuItem
+		private var circuits: [Circuit]?
+		private var excludedCircuits: Set<Circuit>?
+		private var circuitItems: [NSMenuItem]?
+		private var footerItems: [NSMenuItem]?
+		private var allCircuitsText: String?
+
 		@objc private func circuitItemToggled(item: NSMenuItem) {
 			let circuit = item.representedObject as! Circuit
 			toggleCircuit(circuit)
@@ -22,8 +29,16 @@ extension Circuit.Selector {
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
-			self.toggleCircuit = screen.toggleCircuit
-			self.enableAllCircuits = screen.enableAllCircuits
+			toggleCircuit = screen.toggleCircuit
+			enableAllCircuits = screen.enableAllCircuits
+
+			item = .init(
+				title: screen.title,
+				detail: screen.circuitSelectionText
+			)
+
+			item.submenu = .init()
+			allCircuitsText = screen.allCircuitsText
 		}
 	}
 }
@@ -33,43 +48,51 @@ extension Circuit.Selector.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		let circuitItems = circuitItems(for: screen)
 		let footerItems = footerItems(for: screen)
-
-		return [
-			.init(
-				title: screen.title, 
-				detail: screen.circuitSelectionText,
-				submenuItems: circuitItems + footerItems
-			)
-		]
+		item.updateTitle(screen.title)
+		item.updateDetail(screen.circuitSelectionText)
+		item.submenu?.items = circuitItems + footerItems
+		return [item]
 	}
 }
 
+// MARK: -
 private extension Circuit.Selector.View {
 	func circuitItems(for screen: Screen) -> [NSMenuItem] {
-		screen.circuits.map { circuit in
-			NSMenuItem(
-				title: screen.title(for: circuit),
-				enabled: screen.isCircuitEnabled(circuit),
-				action: #selector(circuitItemToggled), 
-				target: self,
-				state: screen.isCircuitExcluded(circuit) ? .off : .on,
-				representedObject: circuit,
-			)
+		if circuits != screen.circuits || excludedCircuits != screen.excludedCircuits {
+			circuits = screen.circuits
+			excludedCircuits = screen.excludedCircuits
+			circuitItems = screen.circuits.map { circuit in
+				.init(
+					title: screen.title(for: circuit),
+					enabled: screen.isCircuitEnabled(circuit),
+					action: #selector(circuitItemToggled),
+					target: self,
+					state: screen.isCircuitExcluded(circuit) ? .off : .on,
+					representedObject: circuit,
+				)
+			}
 		}
+
+		return circuitItems ?? []
 	}
 
 	func footerItems(for screen: Screen) -> [NSMenuItem] {
-		screen.allCircuitsText.map { text in
-			[
-				NSMenuItem.separator(),
-				NSMenuItem(
-					title: text,
-					action: #selector(allCircuitsItemEnabled),
-					target: self,
-					representedObject: nil
-				)
-			]
-		} ?? []
+		if allCircuitsText != screen.allCircuitsText {
+			allCircuitsText = screen.allCircuitsText
+			footerItems = screen.allCircuitsText.map { text in
+				[
+					.separator(),
+					.init(
+						title: text,
+						action: #selector(allCircuitsItemEnabled),
+						target: self,
+						representedObject: nil
+					)
+				]
+			}
+		}
+
+		return footerItems ?? []
 	}
 }
 

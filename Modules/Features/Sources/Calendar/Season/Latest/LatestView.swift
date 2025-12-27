@@ -6,11 +6,11 @@ import struct DrumCorps.Day
 extension Latest {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let daySummaryViews: [Day.Summary.View]
-		
+		private var daySummaryViews: [Day.Summary.View]
+
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
-			daySummaryViews = screen.daySummaryScreens.map(Day.Summary.View.init)
+			daySummaryViews = .init(screen: screen)
 		}
 	}
 }
@@ -18,8 +18,12 @@ extension Latest {
 // MARK: -
 extension Latest.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		zip(screen.daySummaryScreens, daySummaryViews).flatMap { screen, view in 
-			view.menuItems(with: screen) 
+		if daySummaryViews.count != screen.daySummaryScreens.count {
+			daySummaryViews = .init(screen: screen)
+		}
+
+		return zip(screen.daySummaryScreens, daySummaryViews).flatMap { screen, view in
+			view.menuItems(with: screen)
 		}
 	}
 }
@@ -27,4 +31,12 @@ extension Latest.View: @MainActor MenuItemDisplaying {
 // MARK: -
 extension Latest.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Latest.View
+}
+
+// MARK: -
+@MainActor
+private extension [Day.Summary.View] {
+	init(screen: Latest.Screen) {
+		self = screen.daySummaryScreens.map(Day.Summary.View.init)
+	}
 }

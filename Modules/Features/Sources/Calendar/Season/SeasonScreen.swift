@@ -13,8 +13,12 @@ public extension Calendar.Season {
 		let days: LoadService.DayLoadResult?
 		let circuits: LoadService.CircuitLoadResult?
 		let excludedCircuits: Set<Circuit>
+		let headerScreen: Header.Screen?
+		let latestScreen: Latest.Screen?
 		let loadContent: () -> Void
 		let viewItem: (Any) -> Void
+		let showEventList: (Bool) -> Void
+		let isShowingEventList: Bool
 		let toggleCircuit: (Circuit) -> Void
 		let enableAllCircuits: () -> Void
 	}
@@ -22,31 +26,46 @@ public extension Calendar.Season {
 
 // MARK: -
 extension Calendar.Season.Screen {
-	var headerScreen: Header.Screen? {
+	init(
+		days: LoadService.DayLoadResult?,
+		circuits: LoadService.CircuitLoadResult?,
+		excludedCircuits: Set<Circuit>,
+		loadContent: @escaping () -> Void,
+		viewItem: @escaping (Any) -> Void,
+		showEventList: @escaping (Bool) -> Void,
+		isShowingEventList: Bool,
+		toggleCircuit: @escaping (Circuit) -> Void,
+		enableAllCircuits: @escaping () -> Void
+	) {
+		self.days = days
+		self.circuits = circuits
+		self.excludedCircuits = excludedCircuits
+		self.loadContent = loadContent
+		self.viewItem = viewItem
+		self.showEventList = showEventList
+		self.isShowingEventList = isShowingEventList
+		self.toggleCircuit = toggleCircuit
+		self.enableAllCircuits = enableAllCircuits
+
 		switch (days, circuits) {
 		case let (.success(days), .success(circuits)):
-			.init(
+			headerScreen = .init(
 				days: days,
+				viewItem: viewItem,
+				showEventList: showEventList,
+				isShowingEventList: isShowingEventList,
 				circuits: circuits,
 				excludedCircuits: excludedCircuits,
-				viewItem: viewItem,
 				toggleCircuit: toggleCircuit,
 				enableAllCircuits: enableAllCircuits
 			)
-		default:
-			nil
-		}
-	}
-
-	var latestScreen: Latest.Screen? {
-		switch days {
-		case let .success(days):
-			.init(
+			latestScreen = .init(
 				days: days.prefix(3),
 				viewItem: viewItem
 			)
 		default:
-			nil
+			headerScreen = nil
+			latestScreen = nil
 		}
 	}
 }

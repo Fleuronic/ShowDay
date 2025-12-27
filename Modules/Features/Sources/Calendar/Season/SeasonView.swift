@@ -6,18 +6,33 @@ public import ErgoAppKit
 public extension Calendar.Season {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
+		private let separatorItem = NSMenuItem.separator()
+		private let loadingItem: NSMenuItem
 		private let loadContent: () -> Void
-		
+		private let hideEventList: () -> Void
+
 		private var headerView: Header.View?
-		private var latestView: Latest.View? 
-		
-		public init(screen: Screen) {
-			loadContent = screen.loadContent
-		}
+		private var latestView: Latest.View?
 
 		// MARK: NSMenuDelegate
-		@objc public func menuWillOpen(_ menu: NSMenu) {
+		public func menuWillOpen(_ menu: NSMenu) {
 			loadContent()
+		}
+
+		public func menuDidClose(_ menu: NSMenu) {
+			hideEventList()
+		}
+
+		// MARK: MenuItemDisplaying
+		public init(screen: Screen) {
+			loadingItem = .init(
+				title: "Loading…",
+				width: 322,
+				enabled: false
+			)
+
+			loadContent = screen.loadContent
+			hideEventList = { screen.showEventList(false) }
 		}
 	}
 }
@@ -26,21 +41,17 @@ public extension Calendar.Season {
 extension Calendar.Season.View: @MainActor MenuItemDisplaying {
 	// MARK: MenuItemDisplaying
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		let headerScreen = screen.headerScreen
-		let latestScreen = screen.latestScreen
-		
-		headerView = headerScreen.map(Header.View.init) 
-		latestView = latestScreen.map(Latest.View.init)
+		guard
+			let headerScreen = screen.headerScreen,
+			let latestScreen = screen.latestScreen else {
+			return [loadingItem]
+		}
 
-		let separatorItem = NSMenuItem.separator()
-		let loadingItem = NSMenuItem(
-			title: "Loading…",
-			width: 322,
-			enabled: false
-		)
+		headerView = headerView ?? .init(screen: headerScreen)
+		latestView = latestView ?? .init(screen: latestScreen)
 
-		let headerItems = headerScreen.flatMap { headerView?.menuItems(with: $0) } ?? [loadingItem]
-		let latestItems = latestScreen.flatMap { latestView?.menuItems(with: $0) } ?? []
+		let headerItems = headerView?.menuItems(with: headerScreen) ?? []
+		let latestItems = latestView?.menuItems(with: latestScreen) ?? []
 
 		return headerItems + [separatorItem] + latestItems
 	}
