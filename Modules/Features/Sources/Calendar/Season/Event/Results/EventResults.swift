@@ -26,7 +26,7 @@ extension Event.Results {
 			let divisionName = division.map {
 				circuits.count > 1 ? "\($0.circuit.abbreviation!) \($0.name)" : $0.name
 			}
-			
+
 			return (divisionName, placements)
 		}
 

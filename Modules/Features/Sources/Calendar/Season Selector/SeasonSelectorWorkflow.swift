@@ -13,7 +13,7 @@ extension Calendar.Season.Selector {
 
 		init(year: Year) {
 			self.year = year
-			
+
 			let calendar = Foundation.Calendar.current
 			currentYear = .init(value: calendar.component(.year, from: Date.now))
 		}

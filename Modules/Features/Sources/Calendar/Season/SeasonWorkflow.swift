@@ -29,8 +29,8 @@ extension Calendar.Season.Workflow: Workflow {
 		var season: Calendar.Season
 		var isLoadingDays: Bool
 		var isLoadingCircuits: Bool
-		var isShowingEventList: Bool
 		var excludedCircuits: Set<Circuit>
+		var loadedScreens: Set<String>
 	}
 
 	public enum Output {
@@ -47,8 +47,8 @@ extension Calendar.Season.Workflow: Workflow {
 			season: .init(),
 			isLoadingDays: false,
 			isLoadingCircuits: true,
-			isShowingEventList: false,
-			excludedCircuits: []
+			excludedCircuits: [],
+			loadedScreens: []
 		)
 	}
 
@@ -64,10 +64,10 @@ extension Calendar.Season.Workflow: Workflow {
 			days: state.days,
 			circuits: state.circuits,
 			excludedCircuits: state.excludedCircuits,
+			loadedScreens: state.loadedScreens,
 			loadContent: { sink.send(.loadContent) },
 			viewItem: { sink.send(.viewItem($0)) },
-			showEventList: { sink.send(.showEventList($0)) },
-			isShowingEventList: state.isShowingEventList,
+			showContent: { sink.send(.showContent($0)) },
 			toggleCircuit: { sink.send(.toggleCircuit($0)) },
 			enableAllCircuits: { sink.send(.enableAllCircuits) }
 		)
@@ -88,7 +88,7 @@ private extension Calendar.Season.Workflow {
 	enum Action {
 		case loadContent
 		case viewItem(Any)
-		case showEventList(Bool)
+		case showContent(String)
 		case toggleCircuit(Circuit)
 		case enableAllCircuits
 	}
@@ -142,8 +142,8 @@ extension Calendar.Season.Workflow.Action: WorkflowAction {
 			} else if let url = item as? URL {
 				return .groupURL(url)
 			}
-		case let .showEventList(show):
-			state.isShowingEventList = show
+		case let .showContent(show):
+			state.loadedScreens.insert(show)
 		case let .toggleCircuit(circuit):
 			if state.excludedCircuits.contains(circuit) {
 				state.excludedCircuits.remove(circuit)

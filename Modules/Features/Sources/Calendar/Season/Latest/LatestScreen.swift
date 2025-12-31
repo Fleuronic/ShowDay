@@ -1,7 +1,8 @@
-
+// Copyright © Fleuronic LLC. All rights reserved.
 
 import struct DrumCorps.Day
 import struct DrumCorps.Event
+import struct DrumCorps.Placement
 
 enum Latest {}
 
@@ -15,11 +16,12 @@ extension Latest {
 // MARK: -
 extension Latest.Screen {
 	init(
-		days: ArraySlice<Day>,
-		viewItem: @escaping (Any) -> Void
+		days: [Day],
+		viewItem: @escaping (Any) -> Void,
+		showContent: @escaping (String) -> Void
 	) {
-		daySummaryScreens = days
-			.map { ($0, viewItem) }
+		daySummaryScreens = days.prefix(3)
+			.map { ($0, .init(days), viewItem, showContent) }
 			.map(Day.Summary.Screen.init)
 	}
 }

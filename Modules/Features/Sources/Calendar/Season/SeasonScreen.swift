@@ -7,6 +7,7 @@ import struct DrumCorps.Year
 import struct DrumCorps.Circuit
 import struct DrumCorps.Location
 import struct DrumCorps.Venue
+import struct DrumCorps.Placement
 
 public extension Calendar.Season {
 	struct Screen {
@@ -17,8 +18,7 @@ public extension Calendar.Season {
 		let latestScreen: Latest.Screen?
 		let loadContent: () -> Void
 		let viewItem: (Any) -> Void
-		let showEventList: (Bool) -> Void
-		let isShowingEventList: Bool
+		let showContent: (String) -> Void
 		let toggleCircuit: (Circuit) -> Void
 		let enableAllCircuits: () -> Void
 	}
@@ -30,10 +30,10 @@ extension Calendar.Season.Screen {
 		days: LoadService.DayLoadResult?,
 		circuits: LoadService.CircuitLoadResult?,
 		excludedCircuits: Set<Circuit>,
+		loadedScreens: Set<String>,
 		loadContent: @escaping () -> Void,
 		viewItem: @escaping (Any) -> Void,
-		showEventList: @escaping (Bool) -> Void,
-		isShowingEventList: Bool,
+		showContent: @escaping (String) -> Void,
 		toggleCircuit: @escaping (Circuit) -> Void,
 		enableAllCircuits: @escaping () -> Void
 	) {
@@ -42,8 +42,7 @@ extension Calendar.Season.Screen {
 		self.excludedCircuits = excludedCircuits
 		self.loadContent = loadContent
 		self.viewItem = viewItem
-		self.showEventList = showEventList
-		self.isShowingEventList = isShowingEventList
+		self.showContent = showContent
 		self.toggleCircuit = toggleCircuit
 		self.enableAllCircuits = enableAllCircuits
 
@@ -51,17 +50,17 @@ extension Calendar.Season.Screen {
 		case let (.success(days), .success(circuits)):
 			headerScreen = .init(
 				days: days,
-				viewItem: viewItem,
-				showEventList: showEventList,
-				isShowingEventList: isShowingEventList,
 				circuits: circuits,
 				excludedCircuits: excludedCircuits,
+				viewItem: viewItem,
+				showContent: showContent,
 				toggleCircuit: toggleCircuit,
 				enableAllCircuits: enableAllCircuits
 			)
 			latestScreen = .init(
-				days: days.prefix(3),
-				viewItem: viewItem
+				days: days,
+				viewItem: viewItem,
+				showContent: showContent
 			)
 		default:
 			headerScreen = nil

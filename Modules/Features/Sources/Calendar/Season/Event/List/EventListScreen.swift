@@ -2,13 +2,17 @@
 
 import struct DrumCorps.Day
 import struct DrumCorps.Event
+import struct DrumCorps.Placement
 
 extension Event.List {
 	struct Screen {
+		let list: Event.List
+		let days: [Day]
 		let title = "Full Calendar"
 		let eventCountText: String
-		let sections: [Section]?
-		let showContent: () -> Void
+		let viewItem: (Any) -> Void
+
+		private let showContent: (String) -> Void
 	}
 }
 
@@ -31,19 +35,20 @@ extension Event.List.Screen {
 
 	init(
 		days: [Day],
-		showContent: @escaping () -> Void,
-		isShowingContent: Bool,
+		showContent: @escaping (String) -> Void,
 		viewItem: @escaping (Any) -> Void
 	) {
-		let list = Event.List(days: days)
-		let content = list.content
-		eventCountText = "\(content.count) Events"
-
+		self.days = days
 		self.showContent = showContent
+		self.viewItem = viewItem
 
-		let rows = content.map { ($0, $1, viewItem) }.map(Row.init)
-		sections = isShowingContent ? Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted() : nil
-		// TODO: More sorting
+		list = .init(days: days)
+		eventCountText = "\(list.content.count) Events"
+	}
+
+	var sections: [Section] {
+		let rows = list.content.map { ($0, days, $1, viewItem, showContent) }.map(Row.init)
+		return Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted()
 	}
 }
 
@@ -58,19 +63,23 @@ extension Event.List.Screen.Section: Comparable {
 extension Event.List.Screen.Row {
 	init(
 		day: Day,
+		days: [Day],
 		event: Event,
-		viewItem: @escaping (Any) -> Void
+		viewItem: @escaping (Any) -> Void,
+		showContent: @escaping (String) -> Void
 	) {
 		self.day = day
 
-		title = event.showDisplayName ?? event.location.description
+		title = event.displayName
 		detail = event.showDisplayName.map { _ in event.location.description }
 		subtitle = day.dateString
 		sectionName = day.month
 		summaryScreen = .init(
 			day: day,
+			days: days,
 			event: event,
-			viewItem: viewItem
+			viewItem: viewItem,
+			showContent: showContent
 		)
 	}
 }

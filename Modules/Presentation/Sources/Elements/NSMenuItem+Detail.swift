@@ -13,6 +13,7 @@ public extension NSMenuItem {
 		iconAdjustment: CGFloat = 3,
 		width: CGFloat? = nil,
 		enabled: Bool = true,
+		emphasized: Bool = false,
 		submenuItems: [NSMenuItem] = [],
 		laysOutSubmenu: Bool = true,
 		action: Selector? = nil,
@@ -29,6 +30,7 @@ public extension NSMenuItem {
 				iconSpacing: iconSpacing,
 				iconAdjustment: iconAdjustment,
 				width: width ?? 325,
+				emphasized: emphasized,
 				reduceKerning: laysOutSubmenu
 			)
 		} else {
@@ -42,6 +44,7 @@ public extension NSMenuItem {
 		isEnabled = enabled
 		if !submenuItems.isEmpty {
 			let submenu = NSMenu()
+			submenuItems.forEach { $0.menu?.removeItem($0) }
 			submenu.items = submenuItems
 			self.submenu = submenu
 		}
@@ -115,13 +118,21 @@ public extension NSMenuItem {
 	}
 
 	@MainActor
-	func updateDetail(_ detail: String) {
+	func updateDetail(_ detail: String?) {
 		let item = NSMenuItem(
 			title: title,
 			detail: detail
 		)
 
 		attributedTitle = item.attributedTitle
+	}
+
+	func updateSubmenuItems(_ submenuItems: [NSMenuItem]) {
+		guard case let submenu = self.submenu ?? .init(), submenu.items != submenuItems else { return }
+
+		submenuItems.forEach { $0.menu?.removeItem($0) }
+		submenu.items = submenuItems
+		self.submenu = submenu
 	}
 }
 
@@ -136,11 +147,12 @@ private extension NSMenuItem {
 		iconSpacing: CGFloat,
 		iconAdjustment: CGFloat,
 		width: CGFloat,
+		emphasized: Bool,
 		reduceKerning: Bool
 	) {
 		self.init()
 
-		let titleFont = NSFont.systemFont(ofSize: 13)
+		let titleFont: NSFont = .systemFont(ofSize: 13, weight: emphasized ? .semibold : .regular)
 		let string = NSMutableAttributedString(
 			string: title,
 			attributes: [
@@ -172,7 +184,7 @@ private extension NSMenuItem {
 		}
 
 		if let subtitle {
-			let subtitleFont = NSFont.systemFont(ofSize: 12)
+			let subtitleFont = NSFont.systemFont(ofSize: 12, weight: emphasized ? .semibold : .regular)
 			let subtitleString = NSAttributedString(string: subtitle, attributes: [.font: subtitleFont])
 			let subtitleWidth = subtitleString.size().width
 			let spacing: CGFloat = subtitle.contains("/") ? 36 : 64

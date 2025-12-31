@@ -39,6 +39,7 @@ public extension Circuit {
 // MARK: -
 extension Circuit: Equatable {
 	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		// TODO
 		lhs.name == rhs.name
 	}
 }

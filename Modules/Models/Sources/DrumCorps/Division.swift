@@ -41,7 +41,6 @@ extension Division: CustomStringConvertible {
 private extension Division {
 	static var names: [(String, String)] {
 		[
-			("DCI", "DCA"),
 			("World Class", "DCI"),
 			("Open Class", "DCI"),
 			("International Class", "DCI"),
@@ -54,6 +53,7 @@ private extension Division {
 			("Open Class", "DCA"),
 			("Class A", "DCA"),
 			("Mini-Corps", "DCA"),
+			("DCI", "DCA"),
 			("Open Class", "DCUK"),
 			("Premier", "DCUK"),
 			("Junior", "DCUK"),

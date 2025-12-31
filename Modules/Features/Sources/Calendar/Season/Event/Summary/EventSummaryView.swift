@@ -56,11 +56,7 @@ extension Event.Summary.View: @MainActor MenuItemDisplaying {
 		let resultsItems = eventResultsView.menuItems(with: screen.eventResultsScreen)
 		let detailsItems = eventDetailsView.menuItems(with: screen.eventDetailsScreen)
 		let placementSummaryItems = placementSummaryView.menuItems(with: screen.placementSummaryScreen)
-
-		let headerItems = [
-			screen.title.map { _ in showItem },
-			locationItem
-		].compactMap(\.self)
+		let headerItems = [screen.title.map { _ in showItem }, locationItem ].compactMap(\.self)
 
 		viewDetails = screen.viewDetails
 		viewLocation = screen.viewLocation

@@ -19,7 +19,6 @@ extension Calendar.Season.Selector {
 
 		init(screen: Screen) {
 			titleItem = .init(title: screen.title)
-			titleItem.submenu = .init()
 			currentSeasonItem = .init(title: screen.currentSeasonText)
 			currentSeasonItem.action = #selector(currentSeasonItemSelected)
 
@@ -48,7 +47,9 @@ extension Calendar.Season.Selector.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		if year != screen.year {
 			year = screen.year
-			titleItem.submenu?.items = items(for: screen.sections, year: screen.year)
+
+			let items = items(for: screen.sections, year: screen.year)
+			titleItem.updateSubmenuItems(items)
 		}
 
 		currentSeasonItem.updateTitle(screen.currentSeasonText)
@@ -81,9 +82,8 @@ private extension Calendar.Season.Selector.View {
 			item.target = self
 			item.representedObject = year
 		case let .rows(rows):
-			let submenu = NSMenu()
-			submenu.items = rows.map { self.item(for: $0, year: year) }
-			item.submenu = submenu
+			let items = rows.map { self.item(for: $0, year: year) }
+			item.updateSubmenuItems(items)
 		}
 
 		return item

@@ -27,18 +27,30 @@ public extension Event {
 		placements.first.map { Array($0.1.prefix(3)) } ?? []
 	}
 
+	var displayName: String {
+		showDisplayName ?? location.description
+	}
+
 	var showDisplayName: String? {
 		showName.map { name in
 			[
-				"Diablo Valley Classic", 
+				"Diablo Valley Classic",
 				"So Cal Classic",
 				"Rhythm at the Rapids",
 				"Drum Corps: An American Tradition",
 				"Innovations in Brass",
 				"Tour of Champions"
-			].first { 
-				name.contains($0) 
+			].first {
+				name.contains($0)
 			} ?? name
 		}
+	}
+}
+
+// MARK: -
+extension Event: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		// TODO
+		lhs.showName == rhs.showName
 	}
 }
