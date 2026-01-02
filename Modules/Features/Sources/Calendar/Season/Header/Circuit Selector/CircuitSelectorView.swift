@@ -37,7 +37,6 @@ extension Circuit.Selector {
 				detail: screen.circuitSelectionText
 			)
 
-			item.submenu = .init()
 			allCircuitsText = screen.allCircuitsText
 		}
 	}
@@ -48,9 +47,10 @@ extension Circuit.Selector.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		let circuitItems = circuitItems(for: screen)
 		let footerItems = footerItems(for: screen)
+		let items = circuitItems + footerItems
 		item.updateTitle(screen.title)
 		item.updateDetail(screen.circuitSelectionText)
-		item.submenu?.items = circuitItems + footerItems
+		item.updateSubmenuItems(items)
 		return [item]
 	}
 }

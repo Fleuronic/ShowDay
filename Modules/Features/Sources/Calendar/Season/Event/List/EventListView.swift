@@ -8,35 +8,24 @@ import struct DrumCorps.Event
 extension Event.List {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let loadingItem: NSMenuItem
-		private let showContent: () -> Void
+		private let item: NSMenuItem
 
 		private var summaryViews: [[Event.Summary.View]]?
-		private var item: NSMenuItem
-		private var sections: [Event.List.Screen.Section]?
+		private var eventItems: [[NSMenuItem]]?
 		private var eventCountText: String
-
-		// MARK: NSMenuDelegate
-		public func menuWillOpen(_ menu: NSMenu) {
-			if sections == nil {
-				DispatchQueue.main.async {
-					self.showContent()
-				}
-			}
-		}
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
-			loadingItem = .init(
+			let loadingItem = NSMenuItem(
 				title: "Loading…",
 				width: 425,
 				enabled: false
 			)
 
-			showContent = screen.showContent
 			item = .init(
 				title: screen.title,
-				detail: screen.eventCountText
+				detail: screen.eventCountText,
+				submenuItems: [loadingItem]
 			)
 
 			eventCountText = screen.eventCountText
@@ -48,62 +37,77 @@ extension Event.List {
 extension Event.List.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		if eventCountText != screen.eventCountText { // TODO: Not just count but sections
-			sections = nil
-			summaryViews = nil
 			eventCountText = screen.eventCountText
 
 			item.updateTitle(screen.title)
 			item.updateDetail(eventCountText)
-			item.submenu?.items = [loadingItem]
+
+			summaryViews = nil
+			eventItems = nil
 		}
 
-		if let submenu = item.submenu {
-			if let sections = screen.sections {
-				let summaryViews = summaryViews ?? sections.map { section in
-					section.rows.map(\.summaryScreen).map(Event.Summary.View.init)
-				}
+		let summaryViews = summaryViews ?? .init(screen: screen)
+		let eventItems = eventItems ?? .init(sections: screen.sections)
 
-				submenu.items = zip(sections, summaryViews).flatMap(items)
+		screen.sections.enumerated().forEach { index, section in
+			let eventItems = eventItems[index]
+			let summaryViews = summaryViews[index]
 
-				self.summaryViews = summaryViews
-				self.sections = sections
+			(1..<eventItems.count - 1).forEach { index in
+				let item = eventItems[index]
+				let row = section.rows[index - 1]
+				let summaryView = summaryViews[index - 1]
+				let items = summaryView.menuItems(with: row.summaryScreen)
+				item.updateSubmenuItems(items)
 			}
-		} else {
-			let submenu = NSMenu()
-			submenu.delegate = self
-			submenu.items = [loadingItem]
-			item.submenu = submenu
 		}
+
+		let items = eventItems.flatMap(\.self)
+		item.updateSubmenuItems(items)
+		self.summaryViews = summaryViews
+		self.eventItems = eventItems
 
 		return [item]
 	}
 }
 
 // MARK: -
-private extension Event.List.View {
-	func items(for section: Event.List.Screen.Section, with summaryViews: [Event.Summary.View]) -> [NSMenuItem] {
-		let items = zip(section.rows, summaryViews).map { row, summaryView in
-			NSMenuItem(
-				title: row.title,
-				detail: row.detail,
-				subtitle: row.subtitle,
-				width: 425,
-				submenuItems: summaryView.menuItems(with: row.summaryScreen)
-			)
+extension Event.List.Screen: @MainActor MenuBackingScreen {
+	public typealias View = Event.List.View
+}
+
+// MARK: -
+@MainActor
+private extension [[Event.Summary.View]] {
+	init(screen: Event.List.Screen) {
+		self = screen.sections.map { section in
+			section.rows.map(\.summaryScreen).map(Event.Summary.View.init)
 		}
-
-		let separatorItem = NSMenuItem.separator()
-		let headingItem = NSMenuItem(
-			title: section.name,
-			font: .systemFont(ofSize: 13, weight: .medium),
-			enabled: false
-		)
-
-		return [headingItem] + items + [separatorItem]
 	}
 }
 
 // MARK: -
-extension Event.List.Screen: @MainActor MenuBackingScreen {
-	public typealias View = Event.List.View
+@MainActor
+private extension [[NSMenuItem]] {
+	init(sections: [Event.List.Screen.Section]) {
+		self = sections.map { section in
+			let items = section.rows.map { row in
+				NSMenuItem(
+					title: row.title,
+					detail: row.detail,
+					subtitle: row.subtitle,
+					width: 425
+				)
+			}
+
+			let separatorItem = NSMenuItem.separator()
+			let headingItem = NSMenuItem(
+				title: section.name,
+				font: .systemFont(ofSize: 13, weight: .medium),
+				enabled: false
+			)
+
+			return [headingItem] + items + [separatorItem]
+		}
+	}
 }

@@ -35,7 +35,7 @@ extension Day.Summary.View: @MainActor MenuItemDisplaying {
 			eventSummaryViews = .init(screen: screen)
 		}
 
-		return [titleItem] + zip(screen.eventSummaryScreens, eventSummaryViews).flatMap { screen, view in
+		return /*[titleItem] + */zip(screen.eventSummaryScreens, eventSummaryViews).flatMap { screen, view in
 			view.menuItems(with: screen)
 		}
 	}

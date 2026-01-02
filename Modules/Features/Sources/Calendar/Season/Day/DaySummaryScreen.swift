@@ -2,6 +2,7 @@
 
 import struct DrumCorps.Day
 import struct DrumCorps.Event
+import struct DrumCorps.Placement
 
 extension Day {
 	enum Summary {}
@@ -19,11 +20,13 @@ extension Day.Summary {
 extension Day.Summary.Screen {
 	init(
 		day: Day,
-		viewItem: @escaping (Any) -> Void
+		days: [Day],
+		viewItem: @escaping (Any) -> Void,
+		showContent: @escaping (String) -> Void
 	) {
 		title = day.name
 		eventSummaryScreens = day.events
-			.map { (day, $0, viewItem) }
+			.map { (day, days, $0, viewItem, showContent) }
 			.map(Event.Summary.Screen.init)
 	}
 }

@@ -3,6 +3,7 @@
 import struct DrumCorps.Day
 import struct DrumCorps.Event
 import struct DrumCorps.Circuit
+import struct DrumCorps.Placement
 
 enum Header {}
 
@@ -19,19 +20,17 @@ extension Header {
 extension Header.Screen {
 	init(
 		days: [Day],
-		viewItem: @escaping (Any) -> Void,
-		showEventList: @escaping (Bool) -> Void,
-		isShowingEventList: Bool,
 		circuits: [Circuit],
 		excludedCircuits: Set<Circuit>,
+		viewItem: @escaping (Any) -> Void,
+		showContent: @escaping (String) -> Void,
 		toggleCircuit: @escaping (Circuit) -> Void,
-		enableAllCircuits: @escaping () -> Void,
+		enableAllCircuits: @escaping () -> Void
 	) {
 		spanScreen = days.isEmpty ? nil : .init(days: days)
 		eventListScreen = days.isEmpty ? nil : .init(
 			days: days,
-			showContent: { showEventList(true) },
-			isShowingContent: isShowingEventList,
+			showContent: showContent,
 			viewItem: viewItem
 		)
 
