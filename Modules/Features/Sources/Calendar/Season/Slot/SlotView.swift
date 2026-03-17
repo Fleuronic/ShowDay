@@ -22,8 +22,7 @@ extension Slot {
 				iconColor: .group(isActive: screen.isGroupActive),
 				iconSpacing: 22,
 				iconAdjustment: -1,
-				width: 452,
-				laysOutSubmenu: false
+				width: screen.inline ? 325 : 441
 			)
 
 			viewGroup = screen.viewGroup

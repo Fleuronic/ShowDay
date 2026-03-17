@@ -32,6 +32,18 @@ public extension Day {
 		date.formatted(.dateTime.year())
 	}
 
+	var isUpcoming: Bool {
+		date > .init()
+	}
+
+	var countingFromToday: Int {
+		let calendar = Calendar.current
+		let start = calendar.startOfDay(for: .init())
+		let end = calendar.startOfDay(for: date)
+		let components = calendar.dateComponents([.day], from: start, to: end)
+		return components.day ?? 0
+	}
+
 	func counting(to day: Self) -> Int {
 		let calendar = Calendar.current
 		let start = calendar.startOfDay(for: date)
@@ -48,5 +60,11 @@ extension Day: Comparable {
 
 	public static func <(lhs: Self, rhs: Self) -> Bool {
 		lhs.date < rhs.date
+	}
+}
+
+public extension [Day] {
+	var areHistorical: Bool {
+		self.max().map { $0.date < .init() } ?? false
 	}
 }

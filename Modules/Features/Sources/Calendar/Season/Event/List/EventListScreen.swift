@@ -28,6 +28,7 @@ extension Event.List.Screen {
 		let detail: String?
 		let subtitle: String
 		let sectionName: String
+		let showSummary: Bool
 		let summaryScreen: Event.Summary.Screen
 
 		private let day: Day
@@ -43,19 +44,29 @@ extension Event.List.Screen {
 		self.viewItem = viewItem
 
 		list = .init(days: days)
-		eventCountText = "\(list.content.count) Events"
+
+		let descriptor = list.isHistorical ? "events" : "upcoming events"
+		eventCountText = "\(list.content.count) \(descriptor)"
 	}
 
 	var sections: [Section] {
 		let rows = list.content.map { ($0, days, $1, viewItem, showContent) }.map(Row.init)
-		return Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted()
+		let sections = Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted()
+		return days.areHistorical ? sections.reversed() : sections
+	}
+}
+
+// MARK: -
+extension Event.List.Screen.Section {
+	var detail: String? {
+		"\(rows.count) event\(rows.count == 1 ? "" : "s")"
 	}
 }
 
 // MARK: -
 extension Event.List.Screen.Section: Comparable {
 	static func <(lhs: Self, rhs: Self) -> Bool {
-		lhs.rows.first! > rhs.rows.first!
+		lhs.rows.first! < rhs.rows.first!
 	}
 }
 
@@ -74,10 +85,12 @@ extension Event.List.Screen.Row {
 		detail = event.showDisplayName.map { _ in event.location.description }
 		subtitle = day.dateString
 		sectionName = day.month
+		showSummary = !day.isUpcoming
 		summaryScreen = .init(
 			day: day,
 			days: days,
 			event: event,
+			inline: false,
 			viewItem: viewItem,
 			showContent: showContent
 		)

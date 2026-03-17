@@ -23,6 +23,14 @@ public extension Event {
 		venue?.details ?? [location.description]
 	}
 
+	var upcomingSlots: [Slot] {
+		.init(corpsSlots.sorted(using: KeyPathComparator(\.name)).prefix(3))
+	}
+
+	var remainingSlotCount: Int {
+		corpsSlots.count - upcomingSlots.count
+	}
+
 	var topPlacements: [Placement] {
 		placements.first.map { Array($0.1.prefix(3)) } ?? []
 	}
@@ -52,5 +60,11 @@ extension Event: Equatable {
 	public static func ==(lhs: Self, rhs: Self) -> Bool {
 		// TODO
 		lhs.showName == rhs.showName
+	}
+}
+
+private extension Event {
+	var corpsSlots: [Slot] {
+		slots.filter { $0.groupType == .corps }
 	}
 }

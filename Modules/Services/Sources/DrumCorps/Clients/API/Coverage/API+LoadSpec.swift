@@ -38,7 +38,7 @@ extension API: LoadSpec {
 								name: slot.feature?.name ?? groupName!,
 								detail: featureGroup ?? location?.description,
 								url: corps?.url,
-								groupType: corps != nil ? .corps : .ensemble,
+								groupType: corps.map { _ in .corps } ?? ensemble.map { _ in .ensemble},
 								isGroupActive: slot.feature == nil ? (corps?.isActive ?? true) : nil
 							),
 							placement: (performance?.placement).map { placement in

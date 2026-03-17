@@ -21,6 +21,7 @@ extension Placement.Summary.Screen {
 		placements: [Placement],
 		event: Event,
 		days: [Day],
+		inline: Bool,
 		viewItem: @escaping (Any) -> Void,
 		showContent: @escaping (String) -> Void
 	) {
@@ -29,8 +30,10 @@ extension Placement.Summary.Screen {
 				placement: placement,
 				event: event,
 				days: days,
+				inline: inline,
+				hasSubscreens: true,
 				viewItem: viewItem,
-				showContent: showContent
+				showContent: showContent,
 			)
 		}
 	}

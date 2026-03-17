@@ -24,8 +24,8 @@ extension Event.Details.Screen {
 	) {
 		infoScreen = .init(event: event, viewItem: viewItem)
 		scheduleScreen = .init(
-			day: day, 
-			slots: event.slots, 
+			day: day,
+			slots: event.slots,
 			circuit: event.circuit,
 			viewItem: viewItem
 		)

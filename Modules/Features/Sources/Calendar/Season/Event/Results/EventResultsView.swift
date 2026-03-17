@@ -7,28 +7,36 @@ import struct DrumCorps.Event
 import struct DrumCorps.Placement
 import struct DrumCorps.Division
 
+private import Elements
+
 extension Event.Results {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
 		private let item: NSMenuItem
-		private let detailItem: NSMenuItem
-		private let circuitItem: NSMenuItem
+		private let detailItem: MenuItem
+		private let circuitItem: MenuItem
 		private let separatorItem = NSMenuItem.separator()
 
 		private var placementViews: [[Placement.View]]
-		private var divisionItems: [[NSMenuItem]]
+		private var divisionItems: [[MenuItem]]
 		private var viewScores: () -> Void
 
 		init(screen: Screen) {
-			item = .init(title: screen.title)
+			item = .init(
+				title: screen.title,
+				detail: screen.detail,
+				badged: true
+			)
+
 			detailItem = .init(
-				title: screen.detail,
+				title: screen.header,
 				font: .systemFont(ofSize: 14, weight: .medium),
 			)
 
 			circuitItem = .init(
 				title: screen.circuitText,
-				font: .systemFont(ofSize: 12)
+				font: .systemFont(ofSize: 12),
+				header: false
 			)
 
 			placementViews = .init(screen: screen)
@@ -51,7 +59,8 @@ extension Event.Results {
 extension Event.Results.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		item.updateTitle(screen.title)
-		detailItem.updateTitle(screen.detail)
+		item.updateDetail(screen.detail)
+		detailItem.updateTitle(screen.header)
 		circuitItem.updateTitle(screen.circuitText)
 
 		if placementViews.map(\.count) != screen.placementScreens.map(\.1.count) {
@@ -115,13 +124,14 @@ private extension [NSMenuItem] {
 
 // MARK: -
 @MainActor
-private extension [[NSMenuItem]] {
+private extension [[MenuItem]] {
 	init(screen: Event.Results.Screen) {
 		self = screen.placementScreens.map { screen in
-			screen.0.map { divisionName in
+			screen.0.map { divisionName, divisionDetail in
 				[
 					.init(
 						title: divisionName,
+						badgedDetail: divisionDetail,
 						font: .systemFont(ofSize: 12)
 					)
 				]

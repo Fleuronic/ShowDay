@@ -7,6 +7,7 @@ import struct DrumCorps.Circuit
 extension Event {
 	struct Results {
 		let setup: Setup
+		let count: Int
 		let content: [(String?, [Placement])]
 	}
 }
@@ -22,6 +23,8 @@ extension Event.Results {
 	init(event: Event) {
 		let placements = event.placements
 		let circuits = Array(Set(placements.compactMap(\.0?.circuit))).sorted()
+
+		count = placements.reduce(0) { $0 + $1.1.count }
 		content = placements.map { division, placements in
 			let divisionName = division.map {
 				circuits.count > 1 ? "\($0.circuit.abbreviation!) \($0.name)" : $0.name

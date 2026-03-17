@@ -5,27 +5,23 @@ import ErgoAppKit
 
 import struct DrumCorps.Event
 
+private import Elements
+
 extension Event.Info {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let titleItem: NSMenuItem
+		private let titleItem: MenuItem
 
-		private var detailItems: [NSMenuItem]
+		private var detailItems: [MenuItem] = []
 		private var viewDetails: () -> Void
 		private var viewLocation: () -> Void
 
 		init(screen: Screen) {
 			titleItem = .init(
 				title: screen.title,
-				font: .systemFont(ofSize: 14, weight: .medium)
+				font: .systemFont(ofSize: 14, weight: .medium),
+				header: false
 			)
-
-			detailItems = screen.details.map { detail in
-				.init(
-					title: detail,
-					font: .systemFont(ofSize: 12),
-				)
-			}
 
 			viewDetails = screen.viewDetails
 			viewLocation = screen.viewLocation
@@ -61,9 +57,10 @@ extension Event.Info.View: @MainActor MenuItemDisplaying {
 			}
 		} else {
 			detailItems = screen.details.map { detail in
-				.init(
+				MenuItem(
 					title: detail,
 					font: .systemFont(ofSize: 12),
+					header: false,
 					action: #selector(detailSelected),
 					target: self
 				)

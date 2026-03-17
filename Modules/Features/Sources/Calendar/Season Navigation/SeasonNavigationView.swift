@@ -8,13 +8,12 @@ private import Elements
 extension Calendar.Season.Navigation {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let item: NSMenuItem
+		private let item: MenuItem
 
 		init(screen: Screen) {
 			item = .init(
 				title: screen.text,
-				font: .systemFont(ofSize: 18, weight: .medium),
-				enabled: false
+				font: .systemFont(ofSize: 18, weight: .medium)
 			)
 		}
 	}

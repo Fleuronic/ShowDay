@@ -10,7 +10,7 @@ extension Calendar.Season.Selector {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
 		private let titleItem: NSMenuItem
-		private let currentSeasonItem: NSMenuItem
+		private let currentSeasonItem: MenuItem
 		private let separatorItem = NSMenuItem.separator()
 		private let selectSeason: (Year) -> Void
 		private let selectCurrentSeason: () -> Void
