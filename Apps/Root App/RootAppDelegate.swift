@@ -9,10 +9,10 @@ import struct DrumCorpsAPI.API
 import struct DrumCorpsDatabase.Database
 import struct DrumCorpsService.Service
 
+private import MapKit
+private import Elements
 private import struct DrumCorps.Location
 private import struct DrumCorps.Venue
-
-private import MapKit
 
 extension RootApp {
 	final class Delegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -22,6 +22,8 @@ extension RootApp {
 
 		// MARK: NSApplicationDelegate
 		func applicationDidFinishLaunching(_ notification: Notification) {
+			MenuDirection.standardize()
+
 			Task {
 				database = await .init()
 				(statusItem, controller) = makeMenuBarItem()
