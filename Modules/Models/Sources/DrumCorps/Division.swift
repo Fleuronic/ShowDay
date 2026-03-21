@@ -19,8 +19,15 @@ public struct Division: Hashable {
 	) {
 		self.name = name
 		self.circuit = circuit
-	
+
 		priority = Self.names.firstIndex { $0.0 == name && $0.1 == circuit.abbreviation }!
+	}
+}
+
+public extension Division {
+	var fullName: String {
+		"\(circuit.abbreviation ?? circuit.name) \(name)"
+			.replacing("DCA DCI", with: "DCA Junior Class")
 	}
 }
 
