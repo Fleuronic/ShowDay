@@ -18,6 +18,7 @@ extension Placement.SeasonResults.Screen {
 		days: [Day],
 		event: Event,
 		placement: Placement,
+		hasPlacementSubscreens: Bool,
 		viewItem: @escaping (Any) -> Void,
 		showContent: @escaping (String) -> Void
 	) {
@@ -28,9 +29,11 @@ extension Placement.SeasonResults.Screen {
 		)
 
 		let content = results.content
-		let standing = results.isUndefeated ? "Undefeated Season" : "\(results.winCount) Wins"
+		let winText = results.winCount == 1 ? " (1 win)" : (results.winCount == 0 ? "" : " (\(results.winCount) wins)")
+		let standing = results.isUndefeated ? " (undefeated)" : winText
+
 		title = "\(placement.name) Season Results"
-		subtitle = "\(content.count) Competitions, \(standing)"
+		subtitle = (content.count == 1 ? "1 competition" : "\(content.count) competitions") + standing
 		placementScreens = content.map { day, event, placement in
 			.init(
 				placement: placement,
@@ -38,7 +41,7 @@ extension Placement.SeasonResults.Screen {
 				day: day,
 				showsEvent: true,
 				isEmphasized: event == emphasizedEvent,
-				hasSubscreens: true,
+				hasSubscreens: hasPlacementSubscreens,
 				viewItem: viewItem,
 				showContent: showContent
 			)

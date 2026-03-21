@@ -6,10 +6,12 @@ import ErgoAppKit
 import struct DrumCorps.Day
 import struct DrumCorps.Event
 
+private import Elements
+
 extension Day.Summary {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let titleItem: NSMenuItem
+		private let titleItem: MenuItem
 
 		private var eventSummaryViews: [Event.Summary.View]
 
@@ -17,8 +19,7 @@ extension Day.Summary {
 		init(screen: Screen) {
 			titleItem = .init(
 				title: screen.title,
-				font: .systemFont(ofSize: 14, weight: .medium),
-				enabled: false
+				font: .systemFont(ofSize: 14, weight: .medium)
 			)
 
 			eventSummaryViews = .init(screen: screen)

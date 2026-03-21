@@ -16,7 +16,7 @@ public struct Slot {
 	public let name: String
 	public let detail: String?
 	public let url: URL?
-	public let groupType: GroupType
+	public let groupType: GroupType?
 	public let isGroupActive: Bool?
 }
 

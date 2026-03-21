@@ -15,7 +15,9 @@ extension Event {
 extension Event.Schedule {
 	struct Screen {
 		let title: String
+		let detail: String?
 		let subtitle: String
+		let countText: String?
 		let footer: String?
 		let slotScreens: [Slot.Screen]
 	}
@@ -30,15 +32,25 @@ extension Event.Schedule.Screen {
 		viewItem: @escaping (Any) -> Void
 	) {
 		title = day.name
-		
+		detail = day.isUpcoming ? "\(day.countingFromToday) days from now" : "\(-day.countingFromToday) days ago"
+
 		let alphabetical = slots.allSatisfy { $0.time == nil }
-		let performers = slots.allSatisfy { $0.groupType == .corps } ? "corps" : "groups"
-		subtitle = alphabetical ?
-			"Performing \(performers) listed alphabetically." :
-			"All times ET and subject to change."
-		footer = circuit.map { "Event held as part of the \(day.year) \($0) season." }
+		let performers = slots.contains { $0.groupType == .ensemble } ? "groups" : "corps"
+		let corpsCount = slots.count { $0.groupType == .corps && $0.isGroupActive != nil }
+
+		subtitle = if slots.isEmpty {
+			"Schedule to be determined"
+		} else if alphabetical {
+			"Performing \(performers) listed alphabetically"
+		} else {
+			"All times ET" + (day.isUpcoming ? " and subject to change" : "")
+		}
+
+		let tense = day.isUpcoming ? "to be " : ""
+		countText = corpsCount > 0 ? "\(corpsCount) corps performing" : nil
+		footer = circuit.map { "Event \(tense)held as part of the \(day.year) \($0) season" }
 
 		let slots = alphabetical ? slots.sorted(using: KeyPathComparator(\.name)) : slots
-		slotScreens = slots.map { ($0, viewItem) }.map(Slot.Screen.init)
+		slotScreens = slots.map { ($0, false, viewItem) }.map(Slot.Screen.init)
 	}
 }

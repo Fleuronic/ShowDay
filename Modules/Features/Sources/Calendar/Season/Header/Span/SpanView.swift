@@ -12,7 +12,8 @@ extension Span {
 			item = .init(
 				title: screen.rangeText,
 				detail: screen.dayCountText,
-				enabled: false
+				enabled: false,
+				badged: true
 			)
 		}
 	}

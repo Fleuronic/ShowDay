@@ -9,7 +9,6 @@ public extension Calendar.Season {
 		private let separatorItem = NSMenuItem.separator()
 		private let loadingItem: NSMenuItem
 		private let loadContent: () -> Void
-//		private let hideEventList: () -> Void
 
 		private var headerView: Header.View?
 		private var latestView: Latest.View?
@@ -17,10 +16,6 @@ public extension Calendar.Season {
 		// MARK: NSMenuDelegate
 		public func menuWillOpen(_ menu: NSMenu) {
 			loadContent()
-		}
-
-		public func menuDidClose(_ menu: NSMenu) {
-//			hideEventList()
 		}
 
 		// MARK: MenuItemDisplaying
@@ -32,7 +27,6 @@ public extension Calendar.Season {
 			)
 
 			loadContent = screen.loadContent
-//			hideEventList = { screen.showContent(false) }
 		}
 	}
 }

@@ -5,6 +5,8 @@ import ErgoAppKit
 
 import struct DrumCorps.Event
 
+private import Elements
+
 extension Event.List {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
@@ -25,7 +27,9 @@ extension Event.List {
 			item = .init(
 				title: screen.title,
 				detail: screen.eventCountText,
-				submenuItems: [loadingItem]
+				badged: true,
+				submenuItems: [loadingItem],
+				shiftDetail: true
 			)
 
 			eventCountText = screen.eventCountText
@@ -58,7 +62,12 @@ extension Event.List.View: @MainActor MenuItemDisplaying {
 				let row = section.rows[index - 1]
 				let summaryView = summaryViews[index - 1]
 				let items = summaryView.menuItems(with: row.summaryScreen)
-				item.updateSubmenuItems(items)
+				if row.showSummary {
+					item.updateSubmenuItems(items)
+				} else {
+					let detailItems = items[items.count - 2].submenu!.items
+					item.updateSubmenuItems(detailItems)
+				}
 			}
 		}
 
@@ -96,15 +105,16 @@ private extension [[NSMenuItem]] {
 					title: row.title,
 					detail: row.detail,
 					subtitle: row.subtitle,
-					width: 425
+					width: 425,
+					padDetail: true
 				)
 			}
 
 			let separatorItem = NSMenuItem.separator()
-			let headingItem = NSMenuItem(
+			let headingItem = MenuItem(
 				title: section.name,
-				font: .systemFont(ofSize: 13, weight: .medium),
-				enabled: false
+				badgedDetail: section.detail,
+				font: .systemFont(ofSize: 13, weight: .medium)
 			)
 
 			return [headingItem] + items + [separatorItem]

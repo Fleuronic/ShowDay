@@ -14,6 +14,7 @@ extension Placement {
 		let rankIconName: String
 		let rankIconColor: RankIconColor?
 		let days: [Day]?
+		let inline: Bool
 		let isFullResult: Bool
 		let isEmphasized: Bool
 		let viewScores: () -> Void
@@ -37,10 +38,11 @@ extension Placement.Screen {
 		event: Event,
 		day: Day? = nil,
 		days: [Day]? = nil,
+		inline: Bool = false,
 		showsEvent: Bool = false ,
 		isFullResult: Bool = false,
 		isEmphasized: Bool = false,
-		hasSubscreens: Bool = true,
+		hasSubscreens: Bool,
 		viewItem: @escaping (Any) -> Void,
 		showContent: @escaping (String) -> Void
 	) {
@@ -55,6 +57,7 @@ extension Placement.Screen {
 		self.placement = placement
 		self.event = event
 		self.days = days
+		self.inline = inline
 		self.isFullResult = isFullResult
 		self.isEmphasized = isEmphasized
 		self.viewItem = viewItem
@@ -68,6 +71,7 @@ extension Placement.Screen {
 				days: $0,
 				event: event, // TODO
 				placement: placement,
+				hasPlacementSubscreens: false,
 				viewItem: viewItem,
 				showContent: showContent
 			)
@@ -80,7 +84,6 @@ extension Placement.Screen {
 			days: days,
 			placement: placement,
 			viewItem: viewItem,
-			hasPlacementSubscreens: false,
 			showContent: showContent
 		) : nil
 	}

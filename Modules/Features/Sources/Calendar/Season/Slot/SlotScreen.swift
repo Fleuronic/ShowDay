@@ -9,6 +9,7 @@ extension Slot {
 		let subtitle: String?
 		let groupIconName: String?
 		let isGroupActive: Bool?
+		let inline: Bool
 		let viewGroup: () -> Void
 	}
 }
@@ -17,11 +18,14 @@ extension Slot {
 extension Slot.Screen {
 	init(
 		slot: Slot,
+		inline: Bool,
 		viewItem: @escaping (Any) -> Void
 	) {
 		title = slot.name
 		detail = slot.detail
 		subtitle = slot.timeString
+		self.inline = inline
+
 		viewGroup = { slot.url.map(viewItem) }
 
 		if let active = slot.isGroupActive {

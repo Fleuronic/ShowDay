@@ -1,10 +1,9 @@
 public import AppKit
-import ObjectiveC
 
 public extension NSMenuItem {
 	@MainActor
 	convenience init(
-		title: String,
+		title: String?,
 		detail: String? = nil,
 		subtitle: String? = nil,
 		icon: NSImage? = nil,
@@ -13,16 +12,24 @@ public extension NSMenuItem {
 		iconAdjustment: CGFloat = 3,
 		width: CGFloat? = nil,
 		enabled: Bool = true,
+		badged: Bool = false,
 		emphasized: Bool = false,
+		monospacedDetail: Bool = false,
 		submenuItems: [NSMenuItem] = [],
-		laysOutSubmenu: Bool = true,
+		shiftDetail: Bool = false,
+		padDetail: Bool = false,
 		action: Selector? = nil,
-		target: AnyObject? = nil
+		target: AnyObject? = nil,
+		state: NSControl.StateValue? = nil,
+		representedObject: Any? = nil
 	) {
+		Self.swizzledTargetWidth
+		Self.swizzledBadgePosition
+
 		let detail = detail == nil && width != nil ? " " : detail
-		if detail != nil || subtitle != nil {
+		if detail != nil || subtitle != nil || badged {
 			self.init(
-				title: title,
+				title: title ?? " ",
 				detail: detail,
 				subtitle: subtitle,
 				icon: icon,
@@ -30,18 +37,19 @@ public extension NSMenuItem {
 				iconSpacing: iconSpacing,
 				iconAdjustment: iconAdjustment,
 				width: width ?? 325,
+				badged: badged,
 				emphasized: emphasized,
-				reduceKerning: laysOutSubmenu
+				monospacedDetail: monospacedDetail,
+				shiftDetail: shiftDetail,
+				padDetail: padDetail
 			)
 		} else {
-			self.init(
-				title: title,
-				font: nil,
-				enabled: enabled
-			)
+			self.init()
+			title.map { self.title = $0 }
 		}
 
 		isEnabled = enabled
+
 		if !submenuItems.isEmpty {
 			let submenu = NSMenu()
 			submenuItems.forEach { $0.menu?.removeItem($0) }
@@ -53,53 +61,11 @@ public extension NSMenuItem {
 			self.action = action
 			self.target = target
 		}
-	}
 
-	@MainActor
-	convenience init(
-		title: String? = nil,
-		font: NSFont? = nil,
-		enabled: Bool = true,
-		action: Selector? = nil,
-		target: AnyObject? = nil,
-		state: NSControl.StateValue? = nil,
-		representedObject: Any? = nil
-	) {
-		self.init()
-
-		if enabled {
-			if let font, let title {
-				let attributes: [NSAttributedString.Key: NSFont] = [.font: font]
-				attributedTitle = .init(string: title, attributes: attributes)
-			} else {
-				title.map { self.title = $0 }
-				isEnabled = enabled
-			}
-		} else if let font, let title {
-			let label = NSTextField(labelWithString: title)
-			label.font = font
-			label.sizeToFit()
-			label.frame.size.width += 24
-
-			let containerView = NSView()
-			containerView.frame = label.bounds
-			containerView.addSubview(label)
-
-			label.frame.origin.x = 12
-			label.frame.origin.y = 3
-			containerView.frame.size.height += 6
-			view = containerView
-		} else {
-			title.map { self.title = $0 }
-			isEnabled = enabled
+		if let state {
+			self.state = state
 		}
 
-		if let action, let target, isEnabled {
-			self.action = action
-			self.target = target
-		}
-
-		self.state = state ?? .off
 		self.representedObject = representedObject
 	}
 
@@ -107,9 +73,7 @@ public extension NSMenuItem {
 	func updateTitle(_ title: String?) {
 		guard let title else { return }
 
-		if let textField = view?.subviews.first as? NSTextField {
-			textField.stringValue = title
-		} else if let attributedTitle {
+		if let attributedTitle {
 			let attributes = attributedTitle.attributes(at: 0, effectiveRange: nil)
 			self.attributedTitle = .init(string: title, attributes: attributes)
 		} else {
@@ -119,12 +83,20 @@ public extension NSMenuItem {
 
 	@MainActor
 	func updateDetail(_ detail: String?) {
+		if let detail, badge != nil {
+			self.badge = .init(string: detail)
+			return
+		}
+
 		let item = NSMenuItem(
 			title: title,
-			detail: detail
+			detail: detail,
+			// shiftDetail: submenu != nil,
+			padDetail: false
 		)
 
 		attributedTitle = item.attributedTitle
+		badge = item.badge
 	}
 
 	func updateSubmenuItems(_ submenuItems: [NSMenuItem]) {
@@ -137,9 +109,10 @@ public extension NSMenuItem {
 }
 
 // MARK: -
+@MainActor
 private extension NSMenuItem {
 	convenience init(
-		title: String,
+		title: String?,
 		detail: String?,
 		subtitle: String?,
 		icon: NSImage?,
@@ -147,10 +120,19 @@ private extension NSMenuItem {
 		iconSpacing: CGFloat,
 		iconAdjustment: CGFloat,
 		width: CGFloat,
+		badged: Bool,
 		emphasized: Bool,
-		reduceKerning: Bool
+		monospacedDetail: Bool = false,
+		shiftDetail: Bool,
+		padDetail: Bool
 	) {
 		self.init()
+
+		if badged {
+			badge = .init(string: detail ?? "")
+		}
+
+		guard let title else { return }
 
 		let titleFont: NSFont = .systemFont(ofSize: 13, weight: emphasized ? .semibold : .regular)
 		let string = NSMutableAttributedString(
@@ -184,7 +166,7 @@ private extension NSMenuItem {
 		}
 
 		if let subtitle {
-			let subtitleFont = NSFont.systemFont(ofSize: 12, weight: emphasized ? .semibold : .regular)
+			let subtitleFont = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: emphasized ? .semibold : .regular)
 			let subtitleString = NSAttributedString(string: subtitle, attributes: [.font: subtitleFont])
 			let subtitleWidth = subtitleString.size().width
 			let spacing: CGFloat = subtitle.contains("/") ? 36 : 64
@@ -199,27 +181,87 @@ private extension NSMenuItem {
 		}
 
 		let titleWidth = string.size().width
+		let detailFont: NSFont = monospacedDetail ? .monospacedDigitSystemFont(ofSize: 13, weight: emphasized ? .semibold : .regular) : titleFont
 		let detailString = NSMutableAttributedString(
 			string: detail,
 			attributes: [
-				.font: titleFont,
+				.font: detailFont,
 				.foregroundColor: NSColor.disabledControlTextColor
 			]
 		)
 
 		let detailWidth = detailString.size().width
-		let spacingWidth = width - titleWidth - detailWidth
+		let spacingWidth = width - titleWidth - detailWidth - (shiftDetail ? 16 : 0)
 		let spacingString = NSAttributedString(string: " ", attributes: [.kern: spacingWidth])
 
-		if reduceKerning, !detail.isEmpty {
-			let lastIndex = detail.index(before: detail.endIndex)
-			let afterLast = detail.index(after: lastIndex)
-			let range = NSRange(lastIndex..<afterLast, in: detail)
-			detailString.addAttribute(.kern, value: -CGFloat.infinity, range: range)
+		string.append(spacingString)
+		if !badged {
+			string.append(detailString)
+			badge = nil
 		}
 
-		string.append(spacingString)
-		string.append(detailString)
+		if padDetail {
+			let paddingWidth = 12
+			let paddingString = NSAttributedString(string: " ", attributes: [.kern: paddingWidth])
+			string.append(paddingString)
+		}
+
 		attributedTitle = string
+	}
+}
+
+private extension NSMenuItem {
+	static let swizzledTargetWidth: Void = swizzleTargetWidth()
+	static let swizzledBadgePosition: Void = swizzleBadgePosition()
+}
+
+private func swizzleBadgePosition() {
+	guard
+		let cls = NSClassFromString("NSContextMenuItemView"),
+		let method = class_getInstanceMethod(cls, #selector(NSView.layout)) else { return }
+
+	let origIMP = method_getImplementation(method)
+	typealias LayoutFunc = @convention(c) (NSView, Selector) -> Void
+	let origLayout = unsafeBitCast(origIMP, to: LayoutFunc.self)
+	let sel = #selector(NSView.layout)
+
+	let block: @convention(block) (NSView) -> Void = { self_ in
+		origLayout(self_, sel)
+
+		MainActor.assumeIsolated {
+			let boxes = self_.subviews.filter { $0 is NSBox }
+			let hasChevron = self_.subviews.contains {
+				String(describing: type(of: $0)) == "_NSMenuItemTextField" && $0.frame.width < 20
+			}
+
+			guard hasChevron else { return }
+
+			for box in boxes {
+				box.frame.origin.x -= 8
+			}
+		}
+	}
+
+	method_setImplementation(method, imp_implementationWithBlock(block))
+}
+
+private func swizzleTargetWidth() {
+	if
+		let implCls = NSClassFromString("NSContextMenuImpl"),
+		let maxKEIvar = class_getInstanceVariable(implCls, "_maxKEWidth") {
+		let keOffset = ivar_getOffset(maxKEIvar)
+		let targetWidthSel = NSSelectorFromString("_targetWidth")
+		if let method = class_getInstanceMethod(implCls, targetWidthSel) {
+			let origIMP = method_getImplementation(method)
+			typealias Func = @convention(c) (AnyObject, Selector) -> Double
+			let origFunc = unsafeBitCast(origIMP, to: Func.self)
+			let block: @convention(block) (AnyObject) -> Double = { self_ in
+				let original = origFunc(self_, targetWidthSel)
+				let kePtr = Unmanaged.passUnretained(self_).toOpaque().advanced(by: keOffset)
+				let keWidth = kePtr.load(as: Double.self)
+				return original - keWidth
+			}
+			method_setImplementation(method, imp_implementationWithBlock(block))
+		}
 	}
 }

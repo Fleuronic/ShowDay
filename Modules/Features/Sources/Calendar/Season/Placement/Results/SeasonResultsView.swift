@@ -2,24 +2,20 @@ import AppKit
 import ErgoAppKit
 import struct DrumCorps.Placement
 
+private import Elements
+
 extension Placement.SeasonResults {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let titleItem: NSMenuItem
-		private let subtitleItem: NSMenuItem
+		private let titleItem: MenuItem
 
 		private var placementViews: [Placement.View]
 
 		init(screen: Screen) {
 			titleItem = .init(
 				title: screen.title,
-				font: .systemFont(ofSize: 14, weight: .medium),
-				enabled: false
-			)
-
-			subtitleItem = .init(
-				title: screen.subtitle,
-				font: .systemFont(ofSize: 12)
+				badgedDetail: screen.subtitle,
+				font: .systemFont(ofSize: 14, weight: .medium)
 			)
 
 			placementViews = .init(screen: screen)
@@ -32,11 +28,10 @@ extension Placement.SeasonResults.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
 		if placementViews.count != screen.placementScreens.count {
 			titleItem.updateTitle(screen.title)
-			subtitleItem.updateTitle(screen.subtitle)
 			placementViews = .init(screen: screen)
 		}
 
-		return [titleItem, subtitleItem] + zip(screen.placementScreens, placementViews).flatMap { screen, view in
+		return [titleItem] + zip(screen.placementScreens, placementViews).flatMap { screen, view in
 			view.menuItems(with: screen)
 		}
 	}

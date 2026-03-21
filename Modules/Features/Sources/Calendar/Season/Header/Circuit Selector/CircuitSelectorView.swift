@@ -2,16 +2,17 @@
 
 import AppKit
 import ErgoAppKit
-
 import struct DrumCorps.Circuit
 
+
+private import Elements
 extension Circuit.Selector {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
+		private let item: NSMenuItem
 		private let toggleCircuit: (Circuit) -> Void
 		private let enableAllCircuits: () -> Void
 
-		private var item: NSMenuItem
 		private var circuits: [Circuit]?
 		private var excludedCircuits: Set<Circuit>?
 		private var circuitItems: [NSMenuItem]?
@@ -32,10 +33,7 @@ extension Circuit.Selector {
 			toggleCircuit = screen.toggleCircuit
 			enableAllCircuits = screen.enableAllCircuits
 
-			item = .init(
-				title: screen.title,
-				detail: screen.circuitSelectionText
-			)
+			item = .init()
 
 			allCircuitsText = screen.allCircuitsText
 		}

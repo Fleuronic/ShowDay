@@ -110,8 +110,9 @@ private extension NSMenuItem {
 			iconColor: .init(rankIconColor: screen.rankIconColor),
 			width: screen.subtitle == nil && !screen.isFullResult ? 325 : 425,
 			emphasized: screen.isEmphasized,
+			monospacedDetail: true,
 			submenuItems: screen.eventResultsScreen.map { _ in [loadingItem] } ?? [],
-			laysOutSubmenu: screen.eventResultsScreen != nil
+			padDetail: screen.eventResultsScreen != nil
 		)
 	}
 }

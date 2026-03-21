@@ -26,7 +26,7 @@ extension Day.Summary.Screen {
 	) {
 		title = day.name
 		eventSummaryScreens = day.events
-			.map { (day, days, $0, viewItem, showContent) }
+			.map { (day, days, $0, true, viewItem, showContent) }
 			.map(Event.Summary.Screen.init)
 	}
 }

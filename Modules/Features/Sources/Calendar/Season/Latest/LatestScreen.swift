@@ -20,6 +20,7 @@ extension Latest.Screen {
 		viewItem: @escaping (Any) -> Void,
 		showContent: @escaping (String) -> Void
 	) {
+		let days = days.areHistorical ? days : days.reversed()
 		daySummaryScreens = days.prefix(3)
 			.map { ($0, .init(days), viewItem, showContent) }
 			.map(Day.Summary.Screen.init)

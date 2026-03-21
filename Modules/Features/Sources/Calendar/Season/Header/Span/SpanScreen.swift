@@ -14,6 +14,6 @@ extension Span.Screen {
 	init(days: [Day]) {
 		let span = Span(days: days)
 		rangeText = "\(span.firstDay.monthAndDay) to \(span.lastDay.monthAndDay)"
-		dayCountText = "\(span.dayCount) Days"
+		dayCountText = "\(span.dayCount) days"
 	}
 }

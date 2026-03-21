@@ -6,31 +6,36 @@ import ErgoAppKit
 import struct DrumCorps.Event
 import struct DrumCorps.Slot
 
+private import Elements
+
 extension Event.Schedule {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let titleItem: NSMenuItem
-		private let subtitleItem: NSMenuItem
+		private let headerItem: MenuItem
+		private let subheaderItem: MenuItem
 		private let separatorItem = NSMenuItem.separator()
-		private let footerItem: NSMenuItem
+		private let footerItem: MenuItem
 
 		private var slotViews: [Slot.View]
 
 		init(screen: Screen) {
-			titleItem = .init(
+			headerItem = .init(
 				title: screen.title,
-				font: .systemFont(ofSize: 13, weight: .medium),
-				enabled: false
+				badgedDetail: screen.detail,
+				font: .systemFont(ofSize: 13, weight: .medium)
 			)
 
-			subtitleItem = .init(
+			subheaderItem = .init(
 				title: screen.subtitle,
-				font: .systemFont(ofSize: 12)
+				badgedDetail: screen.countText,
+				font: .systemFont(ofSize: 12),
+				header: false
 			)
 
 			footerItem = .init(
 				title: screen.footer,
-				font: .systemFont(ofSize: 12)
+				font: .systemFont(ofSize: 12),
+				header: false
 			)
 
 			slotViews = .init(screen: screen)
@@ -41,8 +46,10 @@ extension Event.Schedule {
 // MARK: -
 extension Event.Schedule.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		titleItem.updateTitle(screen.title)
-		subtitleItem.updateTitle(screen.subtitle)
+		headerItem.updateTitle(screen.title)
+		headerItem.updateDetail(screen.detail)
+		subheaderItem.updateTitle(screen.subtitle)
+		subheaderItem.updateDetail(screen.countText)
 		footerItem.updateTitle(screen.footer)
 
 		if slotViews.count != screen.slotScreens.count {
@@ -54,7 +61,7 @@ extension Event.Schedule.View: @MainActor MenuItemDisplaying {
 			view.menuItems(with: screen)
 		}
 
-		return [titleItem, subtitleItem] + slotItems + footerItems
+		return [headerItem, subheaderItem] + slotItems + footerItems
 	}
 }
 
