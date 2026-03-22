@@ -108,7 +108,7 @@ private extension NSMenuItem {
 				accessibilityDescription: nil
 			),
 			iconColor: .init(rankIconColor: screen.rankIconColor),
-			width: screen.subtitle == nil ? 325 : 425,
+			width: screen.subtitle == nil ? 325 : 400,
 			emphasized: screen.isEmphasized,
 			monospacedDetail: true,
 			submenuItems: screen.eventResultsScreen.map { _ in [loadingItem] } ?? [],

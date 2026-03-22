@@ -18,17 +18,11 @@ extension Event.List {
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
-			let loadingItem = NSMenuItem(
-				title: "Loading…",
-				width: 425,
-				enabled: false
-			)
-
 			item = .init(
 				title: screen.title,
 				detail: screen.eventCountText,
 				badged: true,
-				submenuItems: [loadingItem],
+				submenuItems: [.init()],
 				shiftDetail: true
 			)
 

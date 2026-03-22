@@ -35,8 +35,9 @@ extension Event.Schedule.Screen {
 		detail = day.isUpcoming ? "\(day.countingFromToday) days from now" : "\(-day.countingFromToday) days ago"
 
 		let alphabetical = slots.allSatisfy { $0.time == nil }
-		let performers = slots.contains { $0.groupType == .ensemble } ? "groups" : "corps"
-		let count = slots.count { $0.isGroupActive != nil }
+		let performingSlots = slots.filter { $0.isGroupActive != nil }
+		let performers = performingSlots.contains { $0.groupType == .ensemble } ? "groups" : "corps"
+		let count = performingSlots.count
 
 		subtitle = if alphabetical {
 			day.isUpcoming ? "Schedule to be determined" : "No schedule available"
@@ -46,7 +47,7 @@ extension Event.Schedule.Screen {
 
 		let tense = day.isUpcoming ? "to be " : ""
 		countText = count > 0 ? "\(count) \(performers) performing" : nil
-		footer = circuit.map { "Event \(tense)held as part of the \(day.year) \($0) season" }
+		footer = circuit.map { "Event part of the \(day.year) \($0) season" }
 
 		let slots = alphabetical ? slots.sorted(using: KeyPathComparator(\.name)) : slots
 		slotScreens = slots.map { ($0, false, viewItem) }.map(Slot.Screen.init)

@@ -22,7 +22,7 @@ public extension Calendar.Season {
 		public init(screen: Screen) {
 			loadingItem = .init(
 				title: "Loading…",
-				width: 322,
+				width: 341,
 				enabled: false
 			)
 

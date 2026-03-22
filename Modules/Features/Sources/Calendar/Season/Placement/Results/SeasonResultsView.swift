@@ -28,9 +28,10 @@ extension Placement.SeasonResults {
 // MARK: -
 extension Placement.SeasonResults.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
+		titleItem.updateTitle(screen.title)
+		titleItem.updateDetail(screen.detail)
+
 		if placementViews.map(\.count) != screen.placementScreens.map(\.1.count) {
-			titleItem.updateTitle(screen.title)
-			titleItem.updateDetail(screen.detail)
 			placementViews = .init(screen: screen)
 			divisionItems = .init(screen: screen)
 		}
