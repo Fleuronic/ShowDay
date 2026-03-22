@@ -16,7 +16,10 @@ extension Event.Details {
 		init(screen: Screen) {
 			infoView = .init(screen: screen.infoScreen)
 			scheduleView = .init(screen: screen.scheduleScreen)
-			item = .init(title: "Event Details")
+			item = .init(
+				title: "Event Details",
+				width: 341
+			)
 		}
 	}
 }

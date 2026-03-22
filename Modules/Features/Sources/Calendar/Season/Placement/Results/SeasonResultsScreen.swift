@@ -7,8 +7,9 @@ import struct DrumCorps.Day
 extension Placement.SeasonResults {
 	struct Screen {
 		let title: String
-		let subtitle: String
-		let placementScreens: [Placement.Screen]
+		let detail: String
+		let details: [String]
+		let placementScreens: [(String?, [Placement.Screen])]
 	}
 }
 
@@ -29,21 +30,36 @@ extension Placement.SeasonResults.Screen {
 		)
 
 		let content = results.content
-		let winText = results.winCount == 1 ? " (1 win)" : (results.winCount == 0 ? "" : " (\(results.winCount) wins)")
-		let standing = results.isUndefeated ? " (undefeated)" : winText
 
 		title = "\(placement.name) Season Results"
-		subtitle = (content.count == 1 ? "1 competition" : "\(content.count) competitions") + standing
-		placementScreens = content.map { day, event, placement in
-			.init(
-				placement: placement,
-				event: event,
-				day: day,
-				showsEvent: true,
-				isEmphasized: event == emphasizedEvent,
-				hasSubscreens: hasPlacementSubscreens,
-				viewItem: viewItem,
-				showContent: showContent
+
+		let competitions = content.flatMap(\.1)
+		let winCount = competitions.count { $0.2.rank == 1 }
+		let winText = winCount == 1 ? "1 win" : (winCount == 0 ? "" : "\(winCount) wins")
+		let standing = winCount == competitions.count ? " (undefeated)" : ""
+
+		detail = winText + standing
+		details = content.map(\.1).map { competitions in
+			return (competitions.count == 1 ? "1 competition" : "\(competitions.count) competitions")
+		}
+
+		placementScreens = content.map { division, placements in
+			(
+				division?.fullName,
+				placements.map { day, event, placement in
+					.init(
+						placement: placement,
+						event: event,
+						day: day,
+						days: days,
+						showsEvent: true,
+						isFullResult: true,
+						isEmphasized: event == emphasizedEvent,
+						hasSubscreens: hasPlacementSubscreens,
+						viewItem: viewItem,
+						showContent: showContent
+					)
+				}
 			)
 		}
 	}

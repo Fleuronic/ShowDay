@@ -12,7 +12,7 @@ public extension MenuDirection {
 
 		let block: @convention(block) (AnyObject, Int, Double, CGRect, NSEdgeInsets, Bool) -> Double = { obj, direction, menuWidth, parentBounds, insets, allowOverlap in
 			let depth = menuDepth(of: obj)
-			return depth < 3 ? parentBounds.minX - menuWidth : parentBounds.maxX + (depth == 3 ? 1 : 0)
+			return depth < 3 ? parentBounds.minX - menuWidth : parentBounds.maxX - 300
 		}
 
 		method_setImplementation(method, imp_implementationWithBlock(block))
