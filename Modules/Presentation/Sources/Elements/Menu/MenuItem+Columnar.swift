@@ -49,6 +49,10 @@ public extension MenuItem {
 				shiftDetail: shiftDetail,
 				padDetail: padDetail
 			)
+
+			self.emphasized = emphasized
+			self.preventsHighlighting = preventsHighlighting
+
 			rebuildColumnarAttributedTitle()
 		} else {
 			title.map { self.title = $0 }
@@ -73,7 +77,6 @@ public extension MenuItem {
 		}
 
 		self.emphasized = emphasized
-		self.preventsHighlighting = preventsHighlighting
 		self.representedObject = representedObject
 	}
 }
@@ -98,11 +101,10 @@ extension MenuItem {
 		let subtitleChanged = subtitle != storedSubtitle
 		let iconChanged = icon !== storedIcon || iconColor != storedIconColor
 		let prefixChanged = prefix != storedPrefix || prefixColor != storedPrefixColor
+		let emphasizedChanged = emphasized.map { $0 != self.emphasized } ?? false
+		let preventsHighlightingChanged = preventsHighlighting.map { $0 != self.preventsHighlighting } ?? false
 
-		emphasized.map { self.emphasized = $0 }
-		preventsHighlighting.map { self.preventsHighlighting = $0 }
-
-		guard titleChanged || detailChanged || subtitleChanged || iconChanged || prefixChanged else { return }
+		guard titleChanged || detailChanged || subtitleChanged || iconChanged || prefixChanged || emphasizedChanged || preventsHighlightingChanged else { return }
 
 		storedTitle = title
 		storedDetail = detail
@@ -111,6 +113,8 @@ extension MenuItem {
 		storedPrefixColor = prefixColor
 		storedIcon = icon
 		storedIconColor = iconColor
+		emphasized.map { self.emphasized = $0 }
+		preventsHighlighting.map { self.preventsHighlighting = $0 }
 
 		rebuildColumnarAttributedTitle()
 	}
