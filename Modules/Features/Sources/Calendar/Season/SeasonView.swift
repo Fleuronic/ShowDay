@@ -3,19 +3,21 @@
 public import AppKit
 public import ErgoAppKit
 
+private import Elements
+
 public extension Calendar.Season {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
 		private let separatorItem = NSMenuItem.separator()
-		private let loadingItem: NSMenuItem
-		private let loadContent: () -> Void
+		private let loadingItem: MenuItem
 
 		private var headerView: Header.View?
 		private var latestView: Latest.View?
+		private var screen: Screen
 
 		// MARK: NSMenuDelegate
 		public func menuWillOpen(_ menu: NSMenu) {
-			loadContent()
+			screen.loadContent()
 		}
 
 		// MARK: MenuItemDisplaying
@@ -26,7 +28,7 @@ public extension Calendar.Season {
 				enabled: false
 			)
 
-			loadContent = screen.loadContent
+			self.screen = screen
 		}
 	}
 }
@@ -35,19 +37,18 @@ public extension Calendar.Season {
 extension Calendar.Season.View: @MainActor MenuItemDisplaying {
 	// MARK: MenuItemDisplaying
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		guard
+		headerView = headerView ?? screen.headerScreen.map(Header.View.init)
+		latestView = latestView ?? screen.latestScreen.map(Latest.View.init)
+
+		if
 			let headerScreen = screen.headerScreen,
-			let latestScreen = screen.latestScreen else {
+			let latestScreen = screen.latestScreen {
+			let headerItems = headerView?.menuItems(with: headerScreen) ?? []
+			let latestItems = latestView?.menuItems(with: latestScreen) ?? []
+			return headerItems + [separatorItem] + latestItems
+		} else {
 			return [loadingItem]
 		}
-
-		headerView = headerView ?? .init(screen: headerScreen)
-		latestView = latestView ?? .init(screen: latestScreen)
-
-		let headerItems = headerView?.menuItems(with: headerScreen) ?? []
-		let latestItems = latestView?.menuItems(with: latestScreen) ?? []
-
-		return headerItems + [separatorItem] + latestItems
 	}
 }
 

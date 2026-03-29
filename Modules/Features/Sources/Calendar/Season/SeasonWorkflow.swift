@@ -61,6 +61,7 @@ extension Calendar.Season.Workflow: Workflow {
 
 		let sink = context.makeSink(of: Action.self)
 		return .init(
+			year: year,
 			days: state.days,
 			circuits: state.circuits,
 			excludedCircuits: state.excludedCircuits,

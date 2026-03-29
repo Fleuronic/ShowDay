@@ -18,17 +18,20 @@ extension Event.Results {
 
 // MARK: -
 extension Event.Results.Screen {
-	init(
+	init?(
 		event: Event,
 		days: [Day]?,
 		placement: Placement? = nil,
 		viewItem: @escaping (Any) -> Void,
 		showContent: @escaping (String) -> Void
 	) {
-		let results = Event.Results(event: event)
+		guard
+			case let results = Event.Results(event: event),
+			results.areScored else { return nil }
+
 		let emphasizedPlacement = placement
-		title = results.areScored ? "Full Results" : "All corps performed in exhibition"
-		detail = results.areScored ? "\(results.count) competing" : nil
+		title = "Full Results"
+		detail = "\(results.count) competing"
 		header = "\(event.displayName) Results"
 
 		switch results.setup {
@@ -60,6 +63,13 @@ extension Event.Results.Screen {
 				}
 			)
 		}
+	}
+}
+
+// MARK: -
+extension Event.Results.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.title == rhs.title && lhs.placementScreens.map(\.1) == rhs.placementScreens.map(\.1)
 	}
 }
 

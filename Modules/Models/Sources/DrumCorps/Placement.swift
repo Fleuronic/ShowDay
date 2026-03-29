@@ -25,6 +25,10 @@ public extension Placement {
 	var medalPlace: MedalPlace? {
 		.init(rawValue: rank)
 	}
+
+	static func text(forScoreOrDelta value: Double) -> String {
+		.init(format: "%.3f", value)
+	}
 }
 
 // MARK: -

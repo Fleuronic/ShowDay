@@ -5,21 +5,20 @@ import ErgoAppKit
 
 import struct DrumCorps.Event
 
+private import Elements
+
 extension Event.Details {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
 		private let infoView: Event.Info.View
 		private let scheduleView: Event.Schedule.View
-		private let item: NSMenuItem
+		private let item: MenuItem
 		private let separatorItem = NSMenuItem.separator()
 
 		init(screen: Screen) {
 			infoView = .init(screen: screen.infoScreen)
 			scheduleView = .init(screen: screen.scheduleScreen)
-			item = .init(
-				title: "Event Details",
-				width: 341
-			)
+			item = .init(title: "Event Details")
 		}
 	}
 }
@@ -30,7 +29,7 @@ extension Event.Details.View: @MainActor MenuItemDisplaying {
 		let infoItems = infoView.menuItems(with: screen.infoScreen)
 		let scheduleItems = scheduleView.menuItems(with: screen.scheduleScreen)
 		let items = infoItems + [separatorItem] + scheduleItems
-		item.updateSubmenuItems(items)
+		item.update(submenuItems: items)
 		return [item]
 	}
 }
@@ -39,3 +38,4 @@ extension Event.Details.View: @MainActor MenuItemDisplaying {
 extension Event.Details.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Event.Details.View
 }
+

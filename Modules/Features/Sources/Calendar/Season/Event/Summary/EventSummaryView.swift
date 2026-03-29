@@ -15,13 +15,12 @@ extension Event.Summary {
 		private let placementSummaryView: Placement.Summary.View
 		private let showItem: MenuItem
 		private let locationItem: MenuItem
-		private let lineupItem: NSMenuItem
+		private let lineupItem: MenuItem
 		private let separatorItem = NSMenuItem.separator()
 
 		private var slotSummaryView: Slot.Summary.View?
 		private var eventResultsView: Event.Results.View?
-		private var viewDetails: (() -> Void)?
-		private var viewLocation: () -> Void
+		private var screen: Screen
 
 		init(screen: Screen) {
 			eventDetailsView = .init(screen: screen.eventDetailsScreen)
@@ -30,7 +29,8 @@ extension Event.Summary {
 			showItem = .init(title: screen.title)
 			locationItem = .init(
 				title: screen.subtitle,
-				font: .systemFont(ofSize: 12)
+				font: .systemFont(ofSize: 12),
+				header: false
 			)
 
 			lineupItem = .init(
@@ -43,8 +43,7 @@ extension Event.Summary {
 			showItem.action = #selector(showSelected)
 			locationItem.action = #selector(locationSelected)
 
-			viewDetails = screen.viewDetails
-			viewLocation = screen.viewLocation
+			self.screen = screen
 
 			super.init()
 
@@ -53,11 +52,11 @@ extension Event.Summary {
 		}
 
 		@objc private func showSelected() {
-			viewDetails?()
+			screen.viewDetails?()
 		}
 
 		@objc private func locationSelected() {
-			viewLocation()
+			screen.viewLocation()
 		}
 	}
 }
@@ -65,10 +64,17 @@ extension Event.Summary {
 // MARK: -
 extension Event.Summary.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		showItem.updateTitle(screen.title)
-		locationItem.updateTitle(screen.subtitle)
-		lineupItem.updateTitle(screen.lineupTitle)
-		lineupItem.updateDetail(screen.lineupDetail)
+		if self.screen != screen {
+			self.screen = screen
+
+			showItem.update(title: screen.title)
+			locationItem.update(title: screen.subtitle)
+
+			lineupItem.update(
+				title: screen.lineupTitle,
+				detail: screen.lineupDetail
+			)
+		}
 
 		let summaryItems: [NSMenuItem]
 		let resultsItems: [NSMenuItem]
@@ -82,6 +88,7 @@ extension Event.Summary.View: @MainActor MenuItemDisplaying {
 			self.eventResultsView = eventResultsView
 
 			overflowItems = []
+			slotSummaryView = nil
 			summaryItems = placementSummaryView.menuItems(with: screen.placementSummaryScreen)
 		} else {
 			let slotSummaryView = slotSummaryView ?? .init(screen: screen.slotSummaryScreen)
@@ -89,11 +96,9 @@ extension Event.Summary.View: @MainActor MenuItemDisplaying {
 			self.slotSummaryView = slotSummaryView
 
 			resultsItems = []
+			eventResultsView = nil
 			overflowItems = screen.lineupTitle.map { _ in [lineupItem] } ?? []
 		}
-
-		viewDetails = screen.viewDetails
-		viewLocation = screen.viewLocation
 
 		let items = headerItems + summaryItems + resultsItems + overflowItems + detailsItems
 		return items + [separatorItem]

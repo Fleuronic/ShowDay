@@ -31,7 +31,7 @@ extension Root.Workflow: Workflow {
 	}
 
 	public func makeInitialState() -> State {
-		.init(year: 2023)
+		.init(year: 2025)
 	}
 
 	public func render(

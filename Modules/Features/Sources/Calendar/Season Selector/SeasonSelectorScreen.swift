@@ -47,6 +47,13 @@ extension Calendar.Season.Selector.Screen {
 }
 
 // MARK: -
+extension Calendar.Season.Selector.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.year == rhs.year
+	}
+}
+
+// MARK: -
 private extension Calendar.Season.Selector.Screen {
 	static func section(for decades: [Decade]) -> Section {
 		.init(

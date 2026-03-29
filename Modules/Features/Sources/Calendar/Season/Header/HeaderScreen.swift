@@ -1,6 +1,7 @@
 // Copyright © Fleuronic LLC. All rights reserved.
 
 import struct DrumCorps.Day
+import struct DrumCorps.Year
 import struct DrumCorps.Event
 import struct DrumCorps.Circuit
 import struct DrumCorps.Placement
@@ -19,6 +20,7 @@ extension Header {
 // MARK: -
 extension Header.Screen {
 	init(
+		year: Year,
 		days: [Day],
 		circuits: [Circuit],
 		excludedCircuits: Set<Circuit>,
@@ -27,7 +29,11 @@ extension Header.Screen {
 		toggleCircuit: @escaping (Circuit) -> Void,
 		enableAllCircuits: @escaping () -> Void
 	) {
-		spanScreen = days.isEmpty ? nil : .init(days: days)
+		spanScreen = days.isEmpty ? nil : .init(
+			days: days,
+			year: year
+		)
+
 		eventListScreen = days.isEmpty ? nil : .init(
 			days: days,
 			showContent: showContent,
@@ -40,5 +46,12 @@ extension Header.Screen {
 			toggleCircuit: toggleCircuit,
 			enableAllCircuits: enableAllCircuits
 		)
+	}
+}
+
+// MARK: -
+extension Header.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.eventListScreen == rhs.eventListScreen
 	}
 }

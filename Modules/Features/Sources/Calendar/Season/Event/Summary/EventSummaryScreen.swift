@@ -31,14 +31,16 @@ extension Event.Summary.Screen {
 		day: Day,
 		days: [Day],
 		event: Event,
-		inline: Bool,
 		viewItem: @escaping (Any) -> Void,
 		showContent: @escaping (String) -> Void
 	) {
 		title = event.showName
 		subtitle = event.location.description
 
-		lineupTitle = if event.slots.isEmpty {
+		let isExhibition = !day.isUpcoming && event.placements.isEmpty
+		lineupTitle = if isExhibition {
+			"All corps performed in exhibition"
+		} else if event.slots.isEmpty {
 			"Performing corps to be determined"
 		} else if event.remainingSlotCount > 0 {
 			"Full Lineup"
@@ -46,8 +48,9 @@ extension Event.Summary.Screen {
 			nil
 		}
 
+		let action = isExhibition ? "performing" : "competing"
 		lineupDetail = if event.remainingSlotCount > 0 {
-			"+\(event.remainingSlotCount) more competing"
+			"+\(event.remainingSlotCount) more \(action)"
 		} else {
 			nil
 		}
@@ -64,7 +67,6 @@ extension Event.Summary.Screen {
 			placements: event.topPlacements,
 			event: event,
 			days: days,
-			inline: inline,
 			viewItem: viewItem,
 			showContent: showContent
 		)
@@ -81,5 +83,12 @@ extension Event.Summary.Screen {
 			event: event,
 			viewItem: viewItem
 		)
+	}
+}
+
+// MARK: -
+extension Event.Summary.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.eventDetailsScreen == rhs.eventDetailsScreen
 	}
 }

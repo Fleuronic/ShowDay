@@ -58,3 +58,9 @@ extension Circuit.Selector.Screen {
 	}
 }
 
+// MARK: -
+extension Circuit.Selector.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.circuits == rhs.circuits && lhs.excludedCircuits == rhs.excludedCircuits
+	}
+}

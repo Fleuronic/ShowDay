@@ -3,10 +3,13 @@
 import AppKit
 import ErgoAppKit
 
+private import Elements
+
 extension Span {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private var item: NSMenuItem
+		private var item: MenuItem
+		private var screen: Screen
 
 		init(screen: Screen) {
 			item = .init(
@@ -15,6 +18,8 @@ extension Span {
 				enabled: false,
 				badged: true
 			)
+
+			self.screen = screen
 		}
 	}
 }
@@ -22,8 +27,15 @@ extension Span {
 // MARK: -
 extension Span.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		item.updateTitle(screen.rangeText)
-		item.updateDetail(screen.dayCountText)
+		if self.screen != screen {
+			self.screen = screen
+
+			item.update(
+				title: screen.rangeText,
+				detail: screen.dayCountText
+			)
+		}
+
 		return [item]
 	}
 }

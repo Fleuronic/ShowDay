@@ -14,6 +14,7 @@ extension Day.Summary {
 		private let titleItem: MenuItem
 
 		private var eventSummaryViews: [Event.Summary.View]
+		private var screen: Screen
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
@@ -23,6 +24,7 @@ extension Day.Summary {
 			)
 
 			eventSummaryViews = .init(screen: screen)
+			self.screen = screen
 		}
 	}
 }
@@ -30,10 +32,17 @@ extension Day.Summary {
 // MARK: -
 extension Day.Summary.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		titleItem.updateTitle(screen.title)
+		if screen != self.screen {
+			self.screen = screen
 
-		if eventSummaryViews.count != screen.eventSummaryScreens.count {
-			eventSummaryViews = .init(screen: screen)
+			titleItem.update(title: screen.title)
+
+			let diff = eventSummaryViews.count - screen.eventSummaryScreens.count
+			if diff > 0 {
+				eventSummaryViews.removeLast(diff)
+			} else if diff < 0 {
+				eventSummaryViews += screen.eventSummaryScreens.suffix(-diff).map(Event.Summary.View.init)
+			}
 		}
 
 		return [titleItem] + zip(screen.eventSummaryScreens, eventSummaryViews).flatMap { screen, view in

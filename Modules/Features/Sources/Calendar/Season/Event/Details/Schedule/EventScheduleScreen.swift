@@ -32,7 +32,7 @@ extension Event.Schedule.Screen {
 		viewItem: @escaping (Any) -> Void
 	) {
 		title = day.name
-		detail = day.isUpcoming ? "\(day.countingFromToday) days from now" : "\(-day.countingFromToday) days ago"
+		detail = day.isUpcoming ? "\(day.countingFromToday) days from now" : day.daysAgoDetail
 
 		let alphabetical = slots.allSatisfy { $0.time == nil }
 		let performingSlots = slots.filter { $0.isGroupActive != nil }
@@ -47,9 +47,16 @@ extension Event.Schedule.Screen {
 
 		let tense = day.isUpcoming ? "to be " : ""
 		countText = count > 0 ? "\(count) \(performers) performing" : nil
-		footer = circuit.map { "Event part of the \(day.year) \($0) season" }
+		footer = circuit.map { "Event \(tense)held as part of the \(day.year) \($0) season" }
 
 		let slots = alphabetical ? slots.sorted(using: KeyPathComparator(\.name)) : slots
 		slotScreens = slots.map { ($0, false, viewItem) }.map(Slot.Screen.init)
+	}
+}
+
+// MARK: -
+extension Event.Schedule.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.title == rhs.title && lhs.detail == rhs.detail && lhs.slotScreens == rhs.slotScreens
 	}
 }

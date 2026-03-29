@@ -8,7 +8,7 @@ private import Elements
 public extension Settings {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let item: NSMenuItem
+		private let item: MenuItem
 		private let quit: () -> Void
 
 		public init(screen: Screen) {

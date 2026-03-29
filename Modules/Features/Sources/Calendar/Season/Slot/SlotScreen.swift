@@ -9,6 +9,7 @@ extension Slot {
 		let subtitle: String?
 		let groupIconName: String?
 		let isGroupActive: Bool?
+		let isSelectable: Bool
 		let inline: Bool
 		let viewGroup: () -> Void
 	}
@@ -27,6 +28,7 @@ extension Slot.Screen {
 		self.inline = inline
 
 		viewGroup = { slot.url.map(viewItem) }
+		isSelectable = slot.groupType != nil
 
 		if let active = slot.isGroupActive {
 			if slot.groupType == .ensemble {
@@ -40,5 +42,12 @@ extension Slot.Screen {
 			groupIconName = nil
 			isGroupActive = nil
 		}
+	}
+}
+
+// MARK: -
+extension Slot.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.title == rhs.title && lhs.detail == rhs.detail && lhs.subtitle == rhs.subtitle
 	}
 }
