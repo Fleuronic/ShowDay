@@ -8,8 +8,7 @@ extension Placement.SeasonResults {
 	struct Screen {
 		let title: String
 		let detail: String
-		let details: [String]
-		let placementScreens: [(String?, [Placement.Screen])]
+		let placementScreens: [((String, String)?, [Placement.Screen])]
 	}
 }
 
@@ -39,28 +38,40 @@ extension Placement.SeasonResults.Screen {
 		let standing = winCount == competitions.count ? " (undefeated)" : ""
 
 		detail = winText + standing
-		details = content.map(\.1).map { competitions in
-			return (competitions.count == 1 ? "1 competition" : "\(competitions.count) competitions")
-		}
 
 		placementScreens = content.map { division, placements in
-			(
-				division?.fullName,
-				placements.map { day, event, placement in
-					.init(
+			let detail = placements.count == 1 ? "1 competition" : "\(placements.count) competitions"
+			return (
+				division.map { ($0.fullName, detail) },
+				placements.enumerated().map { index, element in
+					let (day, event, placement) = element
+					let scoreDelta: Double? = {
+						guard index < placements.count - 1 else { return nil }
+						return placement.score - placements[index + 1].2.score
+					}()
+
+					return Placement.Screen(
 						placement: placement,
 						event: event,
 						day: day,
 						days: days,
 						showsEvent: true,
 						isFullResult: true,
-						isEmphasized: event == emphasizedEvent,
+						isEmphasized: event.showName == emphasizedEvent.showName,
 						hasSubscreens: hasPlacementSubscreens,
+						scoreDelta: scoreDelta,
 						viewItem: viewItem,
 						showContent: showContent
 					)
 				}
 			)
 		}
+	}
+}
+
+// MARK: -
+extension Placement.SeasonResults.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.placementScreens.map(\.1) == rhs.placementScreens.map(\.1)
 	}
 }

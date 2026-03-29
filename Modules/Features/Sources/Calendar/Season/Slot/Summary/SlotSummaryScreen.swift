@@ -31,3 +31,10 @@ extension Slot.Summary.Screen {
 		}
 	}
 }
+
+// MARK: -
+extension Slot.Summary.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.slotScreens == rhs.slotScreens
+	}
+}

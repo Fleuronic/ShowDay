@@ -24,7 +24,9 @@ public extension Event {
 	}
 
 	var upcomingSlots: [Slot] {
-		.init(corpsSlots.sorted(using: KeyPathComparator(\.name)).prefix(3))
+		let timedSlots = corpsSlots.filter {  $0.time != nil }
+		let slots = timedSlots.isEmpty ? corpsSlots : timedSlots.sorted { $0.time! > $1.time! }
+		return .init(slots.prefix(3))
 	}
 
 	var remainingSlotCount: Int {
@@ -56,15 +58,8 @@ public extension Event {
 }
 
 // MARK: -
-extension Event: Equatable {
-	public static func ==(lhs: Self, rhs: Self) -> Bool {
-		// TODO
-		lhs.showName == rhs.showName
-	}
-}
-
 private extension Event {
 	var corpsSlots: [Slot] {
-		slots.filter { $0.groupType == .corps }
+		slots.filter { $0.groupType == .corps && $0.isGroupActive != nil }
 	}
 }

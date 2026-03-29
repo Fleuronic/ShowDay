@@ -2,30 +2,29 @@ import AppKit
 import ErgoAppKit
 import struct DrumCorps.Slot
 
+private import Elements
+
 extension Slot {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let item: NSMenuItem
-		private let viewGroup: () -> Void
+		private let item: MenuItem
+
+		private var screen: Screen
 
 		init(screen: Screen) {
 			item = .init(
 				title: screen.title,
 				detail: screen.detail,
 				subtitle: screen.subtitle,
-				icon: screen.groupIconName.flatMap { name in
-					.init(
-						systemSymbolName: name,
-						accessibilityDescription: nil
-					)
-				},
+				icon: screen.icon,
 				iconColor: .group(isActive: screen.isGroupActive),
 				iconSpacing: 22,
 				iconAdjustment: -1,
-				width: screen.inline ? 341 : 400
+				width: screen.inline ? 340 : 441,
+				preventsHighlighting: !screen.isSelectable
 			)
 
-			viewGroup = screen.viewGroup
+			self.screen = screen
 
 			super.init()
 
@@ -34,7 +33,7 @@ extension Slot {
 		}
 
 		@objc private func itemSelected() {
-			viewGroup()
+			screen.viewGroup()
 		}
 	}
 }
@@ -42,13 +41,38 @@ extension Slot {
 // MARK: -
 extension Slot.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		[item]
+		if self.screen != screen {
+			self.screen = screen
+
+			item.update(
+				title: screen.title,
+				detail: screen.detail,
+				subtitle: screen.subtitle,
+				preventsHighlighting: !screen.isSelectable,
+				icon: screen.icon,
+				iconColor: .group(isActive: screen.isGroupActive),
+			)
+		}
+
+		return [item]
 	}
 }
 
 // MARK: -
 extension Slot.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Slot.View
+}
+
+// MARK: -
+private extension Slot.Screen {
+	var icon: NSImage? {
+		groupIconName.flatMap { name in
+			.init(
+				systemSymbolName: name,
+				accessibilityDescription: nil
+			)
+		}
+	}
 }
 
 // MARK: -

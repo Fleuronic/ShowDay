@@ -9,34 +9,33 @@ private import struct DrumCorps.Year
 extension Calendar.Season.Selector {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let titleItem: NSMenuItem
+		private let titleItem: MenuItem
 		private let currentSeasonItem: MenuItem
 		private let separatorItem = NSMenuItem.separator()
-		private let selectSeason: (Year) -> Void
-		private let selectCurrentSeason: () -> Void
 
-		private var year: Year?
+		private var screen: Screen
 
 		init(screen: Screen) {
 			titleItem = .init(title: screen.title)
+
 			currentSeasonItem = .init(title: screen.currentSeasonText)
 			currentSeasonItem.action = #selector(currentSeasonItemSelected)
 
-			selectSeason = screen.selectSeason
-			selectCurrentSeason = screen.selectCurrentSeason
+			self.screen = screen
 
 			super.init()
 
+			titleItem.update(submenuItems: items(year: screen.year))
 			currentSeasonItem.target = self
 		}
 
 		@objc private func seasonItemSelected(item: NSMenuItem) {
 			let year = item.representedObject as! Year
-			selectSeason(year)
+			screen.selectSeason(year)
 		}
 
 		@objc private func currentSeasonItemSelected() {
-			selectCurrentSeason()
+			screen.selectCurrentSeason()
 		}
 	}
 }
@@ -45,14 +44,13 @@ extension Calendar.Season.Selector {
 extension Calendar.Season.Selector.View: @MainActor MenuItemDisplaying {
 	// MARK: MenuItemDisplaying
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		if year != screen.year {
-			year = screen.year
+		if self.screen != screen {
+			self.screen = screen
 
-			let items = items(for: screen.sections, year: screen.year)
-			titleItem.updateSubmenuItems(items)
+			let items = items(year: screen.year)
+			titleItem.update(submenuItems: items)
+			currentSeasonItem.update(title: screen.currentSeasonText)
 		}
-
-		currentSeasonItem.updateTitle(screen.currentSeasonText)
 
 		return [
 			titleItem,
@@ -64,15 +62,15 @@ extension Calendar.Season.Selector.View: @MainActor MenuItemDisplaying {
 
 // MARK: -
 private extension Calendar.Season.Selector.View {
-	func items(for sections: [Screen.Section], year: Year) -> [NSMenuItem] {
-		sections.flatMap { section in
+	func items(year: Year) -> [NSMenuItem] {
+		screen.sections.flatMap { section in
 			let items = section.rows.map { item(for: $0, year: year) }
 			return items + [.separator()]
 		}
 	}
 
 	func item(for row: Screen.Section.Row, year: Year) -> NSMenuItem {
-		let item = NSMenuItem(title: row.title)
+		let item = MenuItem(title: row.title)
 		switch row.content {
 		case .year(year):
 			item.state = .on
@@ -83,7 +81,7 @@ private extension Calendar.Season.Selector.View {
 			item.representedObject = year
 		case let .rows(rows):
 			let items = rows.map { self.item(for: $0, year: year) }
-			item.updateSubmenuItems(items)
+			item.update(submenuItems: items)
 		}
 
 		return item

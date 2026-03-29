@@ -3,44 +3,41 @@ import ErgoAppKit
 import struct DrumCorps.Placement
 import struct DrumCorps.Event
 
+private import Elements
+
 extension Placement {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let loadingItem: NSMenuItem
-		private let showContent: (String) -> Void
+		private let item: MenuItem
 
+		private var eventResultsScreen: Event.Results.Screen?
+		private var seasonResultsScreen: Placement.SeasonResults.Screen?
 		private var seasonResultsView: Placement.SeasonResults.View?
 		private var eventResultsView: Event.Results.View?
-		private var item: NSMenuItem
 		private var screen: Screen
-		private var isShowingContent = false
-		private var viewScores: () -> Void
+		private var shouldShowContent = false
 
 		@objc private func itemSelected() {
-			viewScores()
+			screen.viewScores()
 		}
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {
-			loadingItem = .init(
-				title: "Loading…",
-				width: 325,
-				enabled: false
-			)
+			eventResultsScreen = screen.eventResultsScreen
+			seasonResultsScreen = screen.seasonResultsScreen
 
-			showContent = screen.showContent
 			item = .init(
 				screen: screen,
-				loadingItem: loadingItem
+				hasEventResults: eventResultsScreen != nil
 			)
 
-			viewScores = screen.viewScores
 			self.screen = screen
 
 			super.init()
 
 			item.submenu?.delegate = self
-			if screen.eventResultsScreen == nil {
+
+			if eventResultsScreen == nil {
 				item.target = self
 				item.action = #selector(itemSelected)
 			}
@@ -48,9 +45,9 @@ extension Placement {
 
 		// MARK: NSMenuDelegate
 		public func menuWillOpen(_ menu: NSMenu) {
-			if !isShowingContent {
-				isShowingContent = true
-				showContent(description)
+			if !shouldShowContent {
+				shouldShowContent = true
+				screen.showContent(description)
 			}
 		}
 	}
@@ -59,45 +56,55 @@ extension Placement {
 // MARK: -
 extension Placement.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		if self.screen.title != screen.title { // TODO: Should all be screens
+		if self.screen != screen {
 			self.screen = screen
 
-			item = .init(
-				screen: screen,
-				loadingItem: loadingItem
+			item.update(
+				title: screen.title,
+				detail: screen.scoreText,
+				subtitle: screen.subtitle,
+				prefix: screen.scoreDeltaPrefix,
+				prefixColor: screen.scoreDeltaPrefixColor,
+				emphasized: screen.isEmphasized,
+				icon: .init(
+					systemSymbolName: screen.rankIconName,
+					accessibilityDescription: nil
+				),
+				iconColor: .init(rankIconColor: screen.rankIconColor)
 			)
-
-			item.submenu?.delegate = self
-			isShowingContent = false
-			seasonResultsView = nil
-			eventResultsView = nil
 		}
 
-		if isShowingContent {
-			if let seasonResultsScreen = screen.seasonResultsScreen {
+		if shouldShowContent {
+			shouldShowContent = false
+			eventResultsScreen = screen.eventResultsScreen
+			seasonResultsScreen = screen.seasonResultsScreen
+
+			if let seasonResultsScreen {
 				let seasonResultsView = seasonResultsView ?? .init(screen: seasonResultsScreen)
 				let items = seasonResultsView.menuItems(with: seasonResultsScreen)
-				item.updateSubmenuItems(items)
 				self.seasonResultsView = seasonResultsView
-			} else if let eventResultsScreen = screen.eventResultsScreen {
+
+				eventResultsView = nil
+				item.update(submenuItems: items)
+			} else if let eventResultsScreen {
 				let eventResultsView = eventResultsView ?? .init(screen: eventResultsScreen)
 				let items = eventResultsView.menuItems(with: eventResultsScreen)[0].submenu!.items
-				item.updateSubmenuItems(items)
 				self.eventResultsView = eventResultsView
+
+				seasonResultsView = nil
+				item.update(submenuItems: items)
 			}
 		}
-
-		viewScores = screen.viewScores
 
 		return [item]
 	}
 }
 
 @MainActor
-private extension NSMenuItem {
+private extension MenuItem {
 	convenience init(
 		screen: Placement.Screen,
-		loadingItem: NSMenuItem
+		hasEventResults: Bool
 	) {
 		self.init(
 			title: screen.title,
@@ -108,11 +115,13 @@ private extension NSMenuItem {
 				accessibilityDescription: nil
 			),
 			iconColor: .init(rankIconColor: screen.rankIconColor),
-			width: screen.subtitle == nil ? 325 : 400,
+			width: screen.subtitle == nil ? (screen.isFullResult ? 340 : 325) : 425,
 			emphasized: screen.isEmphasized,
 			monospacedDetail: true,
-			submenuItems: screen.eventResultsScreen.map { _ in [loadingItem] } ?? [],
-			padDetail: screen.eventResultsScreen != nil
+			prefix: screen.scoreDeltaPrefix,
+			prefixColor: screen.scoreDeltaPrefixColor,
+			submenuItems: hasEventResults ? [.init()] : [],
+			padDetail: hasEventResults
 		)
 	}
 }

@@ -26,3 +26,10 @@ extension Latest.Screen {
 			.map(Day.Summary.Screen.init)
 	}
 }
+
+// MARK: -
+extension Latest.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.daySummaryScreens == rhs.daySummaryScreens
+	}
+}

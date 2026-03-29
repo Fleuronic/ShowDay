@@ -26,7 +26,14 @@ extension Day.Summary.Screen {
 	) {
 		title = day.name
 		eventSummaryScreens = day.events
-			.map { (day, days, $0, true, viewItem, showContent) }
+			.map { (day, days, $0, viewItem, showContent) }
 			.map(Event.Summary.Screen.init)
+	}
+}
+
+// MARK: -
+extension Day.Summary.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.title == rhs.title
 	}
 }

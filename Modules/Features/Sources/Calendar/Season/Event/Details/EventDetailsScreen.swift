@@ -31,3 +31,10 @@ extension Event.Details.Screen {
 		)
 	}
 }
+
+// MARK: -
+extension Event.Details.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.scheduleScreen == rhs.scheduleScreen
+	}
+}

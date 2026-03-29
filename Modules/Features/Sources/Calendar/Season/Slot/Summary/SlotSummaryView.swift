@@ -6,9 +6,11 @@ extension Slot.Summary {
 	@MainActor
 	final class View: NSObject {
 		private var views: [Slot.View]
+		private var screen: Screen
 
 		init(screen: Screen) {
 			views = .init(screen: screen)
+			self.screen = screen
 		}
 	}
 }
@@ -16,8 +18,15 @@ extension Slot.Summary {
 // MARK: -
 extension Slot.Summary.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		if views.count != screen.slotScreens.count {
-			views = .init(screen: screen)
+		if self.screen != screen {
+			self.screen = screen
+
+			let diff = views.count - screen.slotScreens.count
+			if diff > 0 {
+				views.removeLast(diff)
+			} else if diff < 0 {
+				views += screen.slotScreens.suffix(-diff).map(Slot.View.init)
+			}
 		}
 
 		return zip(screen.slotScreens, views).flatMap { screen, view in

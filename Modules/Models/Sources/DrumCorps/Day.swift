@@ -44,12 +44,33 @@ public extension Day {
 		return components.day ?? 0
 	}
 
+	var daysAgoDetail: String {
+		let calendar = Calendar.current
+		let start = calendar.startOfDay(for: date)
+		let end = calendar.startOfDay(for: .init())
+		let components = calendar.dateComponents([.year, .day], from: start, to: end)
+		let years = components.year ?? 0
+		let days = components.day ?? 0
+
+		if years > 0 {
+			let yearPart = years == 1 ? "1 year" : "\(years) years"
+			if days > 0 {
+				let dayPart = days == 1 ? "1 day" : "\(days) days"
+				return "\(yearPart), \(dayPart) ago"
+			} else {
+				return "\(yearPart) ago"
+			}
+		} else {
+			return "\(days) days ago"
+		}
+	}
+
 	func counting(to day: Self) -> Int {
 		let calendar = Calendar.current
 		let start = calendar.startOfDay(for: date)
 		let end = calendar.startOfDay(for: day.date)
 		let components = calendar.dateComponents([.day], from: start, to: end)
-		return components.day ?? 0
+		return components.day! + 1
 	}
 }
 

@@ -14,9 +14,10 @@ extension Event.Schedule {
 		private let headerItem: MenuItem
 		private let subheaderItem: MenuItem
 		private let separatorItem = NSMenuItem.separator()
-		private let footerItem: MenuItem
 
 		private var slotViews: [Slot.View]
+		private var footerItem: MenuItem?
+		private var screen: Screen
 
 		init(screen: Screen) {
 			headerItem = .init(
@@ -32,13 +33,17 @@ extension Event.Schedule {
 				header: false
 			)
 
-			footerItem = .init(
-				title: screen.footer,
-				font: .systemFont(ofSize: 12),
-				header: false
-			)
+			footerItem = screen.footer.map {
+				.init(
+					title: $0,
+					font: .systemFont(ofSize: 12),
+					header: false
+				)
+			}
 
-			slotViews = .init(screen: screen)
+			slotViews = screen.slotScreens.map(Slot.View.init)
+
+			self.screen = screen
 		}
 	}
 }
@@ -46,17 +51,42 @@ extension Event.Schedule {
 // MARK: -
 extension Event.Schedule.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		headerItem.updateTitle(screen.title)
-		headerItem.updateDetail(screen.detail)
-		subheaderItem.updateTitle(screen.subtitle)
-		subheaderItem.updateDetail(screen.countText)
-		footerItem.updateTitle(screen.footer)
+		if self.screen != screen {
+			self.screen = screen
 
-		if slotViews.count != screen.slotScreens.count {
-			slotViews = .init(screen: screen)
+			headerItem.update(
+				title: screen.title,
+				detail: screen.detail
+			)
+
+			subheaderItem.update(
+				title: screen.subtitle,
+				detail: screen.countText
+			)
+
+			if let footer = screen.footer {
+				if let footerItem {
+					footerItem.update(title: footer)
+				} else {
+					footerItem = .init(
+						title: footer,
+						font: .systemFont(ofSize: 12),
+						header: false
+					)
+				}
+			} else {
+				footerItem = nil
+			}
+
+			let diff = slotViews.count - screen.slotScreens.count
+			if diff > 0 {
+				slotViews.removeLast(diff)
+			} else if diff < 0 {
+				slotViews += screen.slotScreens.suffix(-diff).map(Slot.View.init)
+			}
 		}
 
-		let footerItems = screen.footer.map { _ in [separatorItem, footerItem] } ?? []
+		let footerItems = footerItem.map { [separatorItem, $0] } ?? []
 		let slotItems = zip(screen.slotScreens, slotViews).flatMap { screen, view in
 			view.menuItems(with: screen)
 		}
@@ -68,12 +98,4 @@ extension Event.Schedule.View: @MainActor MenuItemDisplaying {
 // MARK: -
 extension Event.Schedule.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Event.Schedule.View
-}
-
-// MARK: -
-@MainActor
-private extension [Slot.View] {
-	init(screen: Event.Schedule.Screen) {
-		self = screen.slotScreens.map(Slot.View.init)
-	}
 }

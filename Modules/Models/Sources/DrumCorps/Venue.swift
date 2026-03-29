@@ -19,7 +19,7 @@ public extension Venue {
 	var details: [String] {
 		[
 			name,
-			host,
+			host.flatMap { name.contains($0) ? nil : $0 },
 			streetAddress,
 			"\(location) \(zipCode)"
 		].compactMap(\.self)

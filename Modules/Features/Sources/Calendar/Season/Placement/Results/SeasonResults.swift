@@ -28,7 +28,7 @@ extension Placement.SeasonResults {
 			(division, placements.map { ($0.1, $0.2, $0.3) })
 		}.sorted { lhs, rhs in
 			switch (lhs.0, rhs.0) {
-			case let (a?, b?): a > b
+			case let (a?, b?): a < b
 			case (_?, nil): true
 			default: false
 			}

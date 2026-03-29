@@ -27,6 +27,7 @@ public extension Calendar.Season {
 // MARK: -
 extension Calendar.Season.Screen {
 	init(
+		year: Year,
 		days: LoadService.DayLoadResult?,
 		circuits: LoadService.CircuitLoadResult?,
 		excludedCircuits: Set<Circuit>,
@@ -49,6 +50,7 @@ extension Calendar.Season.Screen {
 		switch (days, circuits) {
 		case let (.success(days), .success(circuits)):
 			headerScreen = .init(
+				year: year,
 				days: days,
 				circuits: circuits,
 				excludedCircuits: excludedCircuits,
@@ -66,5 +68,11 @@ extension Calendar.Season.Screen {
 			headerScreen = nil
 			latestScreen = nil
 		}
+	}
+}
+
+extension Calendar.Season.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.headerScreen == rhs.headerScreen
 	}
 }

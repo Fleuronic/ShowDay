@@ -3,10 +3,12 @@ import ErgoAppKit
 
 import struct DrumCorps.Event
 
+private import Elements
+
 extension Event {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let item: NSMenuItem
+		private let item: MenuItem
 
 		// MARK: MenuItemDisplaying
 		init(screen: Screen) {

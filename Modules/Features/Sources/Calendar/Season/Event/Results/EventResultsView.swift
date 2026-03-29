@@ -12,14 +12,14 @@ private import Elements
 extension Event.Results {
 	@MainActor
 	final class View: NSObject, NSMenuDelegate {
-		private let item: NSMenuItem
+		private let item: MenuItem
 		private let detailItem: MenuItem
-		private let circuitItem: MenuItem
 		private let separatorItem = NSMenuItem.separator()
 
 		private var placementViews: [[Placement.View]]
 		private var divisionItems: [[MenuItem]]
-		private var viewScores: () -> Void
+		private var circuitItem: MenuItem?
+		private var screen: Screen
 
 		init(screen: Screen) {
 			item = .init(
@@ -30,18 +30,20 @@ extension Event.Results {
 
 			detailItem = .init(
 				title: screen.header,
-				font: .systemFont(ofSize: 14, weight: .medium),
+				font: .systemFont(ofSize: 14, weight: .medium)
 			)
 
-			circuitItem = .init(
-				title: screen.circuitText,
-				font: .systemFont(ofSize: 12),
-				header: false
-			)
+			circuitItem = screen.circuitText.map {
+				.init(
+					title: $0,
+					font: .systemFont(ofSize: 12),
+					header: false
+				)
+			}
 
-			placementViews = .init(screen: screen)
-			divisionItems = .init(screen: screen)
-			viewScores = screen.viewScores
+			placementViews = screen.placementScreens.map { $0.1.map(Placement.View.init) }
+			divisionItems = .init(placementScreens: screen.placementScreens)
+			self.screen = screen
 
 			super.init()
 
@@ -50,7 +52,7 @@ extension Event.Results {
 		}
 
 		@objc private func titleSelected() {
-			viewScores()
+			screen.viewScores()
 		}
 	}
 }
@@ -58,32 +60,74 @@ extension Event.Results {
 // MARK: -
 extension Event.Results.View: @MainActor MenuItemDisplaying {
 	public func menuItems(with screen: Screen) -> [NSMenuItem] {
-		item.updateTitle(screen.title)
-		item.updateDetail(screen.detail)
-		detailItem.updateTitle(screen.header)
-		circuitItem.updateTitle(screen.circuitText)
+		if self.screen != screen {
+			self.screen = screen
 
-		if placementViews.map(\.count) != screen.placementScreens.map(\.1.count) {
-			placementViews = .init(screen: screen)
-			divisionItems = .init(screen: screen)
+			item.update(
+				title: screen.title,
+				detail: screen.detail
+			)
+
+			detailItem.update(title: screen.header)
+
+			if let circuitText = screen.circuitText {
+				if let circuitItem = circuitItem {
+					circuitItem.update(title: circuitText)
+				} else {
+					circuitItem = .init(
+						title: circuitText,
+						font: .systemFont(ofSize: 12),
+						header: false
+					)
+				}
+			} else {
+				circuitItem = nil
+			}
+
+			let divisionDiff = divisionItems.count - screen.placementScreens.count
+			if divisionDiff > 0 {
+				placementViews.removeLast(divisionDiff)
+				divisionItems.removeLast(divisionDiff)
+			} else if divisionDiff < 0 {
+				placementViews += screen.placementScreens.suffix(-divisionDiff).map { $0.1.map(Placement.View.init) }
+				divisionItems += .init(placementScreens: screen.placementScreens.suffix(-divisionDiff))
+			}
+
+			for (index, screens) in screen.placementScreens.enumerated() {
+				if let (divisionName, divisionDetail) = screens.0, let item = divisionItems[index].first {
+					item.update(
+						title: divisionName,
+						detail: divisionDetail
+					)
+				}
+
+				let placementDiff = placementViews[index].count - screens.1.count
+				if placementDiff > 0 {
+					placementViews[index].removeLast(placementDiff)
+				} else if placementDiff < 0 {
+					placementViews[index] += screens.1.suffix(-placementDiff).map(Placement.View.init)
+				}
+			}
 		}
 
 		if screen.placementScreens.isEmpty {
 			item.isEnabled = false
 		} else {
-			let footerItems = screen.circuitText.map { _ in [separatorItem, circuitItem] } ?? []
-			let placementItems: [NSMenuItem] = .init(
-				screen: screen,
-				divisionItems: divisionItems,
-				placementViews: placementViews
-			)
+			let footerItems = circuitItem.map { [separatorItem, $0] } ?? []
+			let placementItems = screen.placementScreens.enumerated().flatMap { index, divisionScreens in
+				let divisionItems = divisionItems[index]
+				let placementViews = placementViews[index]
+				let (_, screens) = divisionScreens
+
+				return divisionItems + zip(screens, placementViews).flatMap { screen, view in
+					view.menuItems(with: screen)
+				}
+			}
 
 			let items = [detailItem] + placementItems + footerItems
 			item.isEnabled = true
-			item.updateSubmenuItems(items)
+			item.update(submenuItems: items)
 		}
-
-		viewScores = screen.viewScores
 
 		return [item]
 	}
@@ -94,44 +138,16 @@ extension Event.Results.Screen: @MainActor MenuBackingScreen {
 	public typealias View = Event.Results.View
 }
 
-// MARK: -
 @MainActor
-private extension [[Placement.View]] {
-	init(screen: Event.Results.Screen) {
-		self = screen.placementScreens.map { $0.1.map(Placement.View.init) }
-	}
-}
-
-// MARK: -
-@MainActor
-private extension [NSMenuItem] {
-	init(
-		screen: Event.Results.Screen,
-		divisionItems: [[NSMenuItem]],
-		placementViews: [[Placement.View]]
-	) {
-		self = screen.placementScreens.enumerated().flatMap { index, divisionScreens in
-			let divisionItems = divisionItems[index]
-			let placementViews = placementViews[index]
-			let (_, screens) = divisionScreens
-
-			return divisionItems + zip(screens, placementViews).flatMap { screen, view in
-				view.menuItems(with: screen)
-			}
-		}
-	}
-}
-
-// MARK: -
-@MainActor
-private extension [[MenuItem]] {
-	init(screen: Event.Results.Screen) {
-		self = screen.placementScreens.map { screen in
-			screen.0.map { divisionName, divisionDetail in
+// TODO
+extension [[MenuItem]] {
+	init(placementScreens: [((String, String)?, [Placement.Screen])]) {
+		self = placementScreens.map { screens in
+			screens.0.map { title, detail in
 				[
 					.init(
-						title: divisionName,
-						badgedDetail: divisionDetail,
+						title: title,
+						badgedDetail: detail,
 						font: .systemFont(ofSize: 12)
 					)
 				]

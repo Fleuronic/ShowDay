@@ -28,3 +28,10 @@ extension Event.Info.Screen {
 		viewLocation = { viewItem?(event.venue ?? event.location) }
 	}
 }
+
+// MARK: -
+extension Event.Info.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.title == rhs.title && lhs.details == rhs.details
+	}
+}

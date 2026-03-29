@@ -11,8 +11,7 @@ extension Event.List {
 		let title = "Full Calendar"
 		let eventCountText: String
 		let viewItem: (Any) -> Void
-
-		private let showContent: (String) -> Void
+		let showContent: (String) -> Void
 	}
 }
 
@@ -29,9 +28,12 @@ extension Event.List.Screen {
 		let subtitle: String
 		let sectionName: String
 		let showSummary: Bool
-		let summaryScreen: Event.Summary.Screen
 
-		private let day: Day
+		fileprivate let day: Day
+		fileprivate let days: [Day]
+		fileprivate let event: Event
+		fileprivate let viewItem: (Any) -> Void
+		fileprivate let showContent: (String) -> Void
 	}
 
 	init(
@@ -48,11 +50,20 @@ extension Event.List.Screen {
 		let descriptor = list.isHistorical ? "events" : "upcoming events"
 		eventCountText = "\(list.content.count) \(descriptor)"
 	}
+}
 
+extension Event.List.Screen {
 	var sections: [Section] {
 		let rows = list.content.map { ($0, days, $1, viewItem, showContent) }.map(Row.init)
 		let sections = Dictionary(grouping: rows, by: \.sectionName).map(Section.init).sorted()
 		return days.areHistorical ? sections.reversed() : sections
+	}
+}
+
+// MARK: -
+extension Event.List.Screen: Equatable {
+	public static func ==(lhs: Self, rhs: Self) -> Bool {
+		lhs.days.last == rhs.days.last && lhs.eventCountText == rhs.eventCountText
 	}
 }
 
@@ -80,17 +91,23 @@ extension Event.List.Screen.Row {
 		showContent: @escaping (String) -> Void
 	) {
 		self.day = day
+		self.days = days
+		self.event = event
+		self.viewItem = viewItem
+		self.showContent = showContent
 
 		title = event.displayName
 		detail = event.showDisplayName.map { _ in event.location.description }
 		subtitle = day.dateString
 		sectionName = day.month
 		showSummary = !day.isUpcoming
-		summaryScreen = .init(
+	}
+
+	var summaryScreen: Event.Summary.Screen {
+		.init(
 			day: day,
 			days: days,
 			event: event,
-			inline: false,
 			viewItem: viewItem,
 			showContent: showContent
 		)

@@ -1,24 +1,26 @@
 private import AppKit
 private import ObjectiveC
 
-// MARK: - Force deep submenus to open left
 public enum MenuDirection {}
 
+// MARK: -
 public extension MenuDirection {
 	static func standardize() {
-		guard let cls = NSClassFromString("NSPopupMenuWindow") else { return }
-		let sel = NSSelectorFromString("_positionSubmenuHorizontally:withMenuWidth:inParentItemBounds:withInsets:allowingOverlap:")
-		guard let method = class_getInstanceMethod(cls, sel) else { return }
+		guard
+			let cls = NSClassFromString("NSPopupMenuWindow"),
+			case let sel = NSSelectorFromString(
+				"_positionSubmenuHorizontally:withMenuWidth:inParentItemBounds:withInsets:allowingOverlap:"
+			), let method = class_getInstanceMethod(cls, sel) else { return }
 
 		let block: @convention(block) (AnyObject, Int, Double, CGRect, NSEdgeInsets, Bool) -> Double = { obj, direction, menuWidth, parentBounds, insets, allowOverlap in
-			let depth = menuDepth(of: obj)
-			return depth < 3 ? parentBounds.minX - menuWidth : parentBounds.maxX - 300
+			menuDepth(of: obj) < 3 ? parentBounds.minX - menuWidth : parentBounds.maxX - 300
 		}
 
 		method_setImplementation(method, imp_implementationWithBlock(block))
 	}
 }
 
+// MARK: -
 private extension MenuDirection {
 	static func menuDepth(of window: AnyObject) -> Int {
 		guard
@@ -27,14 +29,13 @@ private extension MenuDirection {
 			let implResult = window.perform(implSel)?.takeUnretainedValue(),
 			case let menuSel = NSSelectorFromString("menu"),
 			implResult.responds(to: menuSel),
-			let menuObj = implResult.perform(menuSel)?.takeUnretainedValue() as? NSMenu else { return 0 }
+			let menu = implResult.perform(menuSel)?.takeUnretainedValue() as? NSMenu else { return 0 }
 
 		var depth = 0
-		var current: NSMenu? = menuObj
-
-		while let sup = current?.supermenu {
+		var currentMenu: NSMenu? = menu
+		while let supermenu = currentMenu?.supermenu {
 			depth += 1
-			current = sup
+			currentMenu = supermenu
 		}
 
 		return depth
